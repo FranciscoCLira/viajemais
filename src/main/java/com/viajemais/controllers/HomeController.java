@@ -1,10 +1,10 @@
-package com.viajemais.controller;
+package com.viajemais.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.viajemais.repository.DestinoRepository;
+import com.viajemais.repositories.DestinoRepository;
 
 @Controller
 public class HomeController {

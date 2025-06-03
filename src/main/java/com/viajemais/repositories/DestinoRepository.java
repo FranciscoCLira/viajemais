@@ -1,4 +1,4 @@
-package com.viajemais.repository;
+package com.viajemais.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
