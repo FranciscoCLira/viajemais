@@ -1,4 +1,4 @@
-package com.viajemais.models;
+package com.viajemais.entities;
 
 import jakarta.persistence.*;
 
