@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Confirmar Contratação</title>
+</head>
+<body>
+    <h1>Confirmação de Viagem</h1>
+    <form action="/contratacao/confirmar" method="post">
+        <ul>
+            <li th:each="destino : ${destinosSelecionados}">
+                <input type="hidden" name="destinos" th:value="${destino.id}"/>
+                <span th:text="${destino.local}"></span> - R$<span th:text="${destino.preco}"></span>
+            </li>
+        </ul>
+        <div>
+            <button type="submit">Confirmar</button>
+        </div>
+    </form>
+    <form action="/contratacao/cancelar" method="post" style="margin-top:10px;">
+        <button type="submit">Cancelar</button>
+    </form>
+</body>
+</html>

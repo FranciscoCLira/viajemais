@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Viaje Mais</title>
+    <title>Viage Mais</title>
     <style>
         body { font-family: sans-serif; background-color: #e0f7ff; color: #003366; }
         header { background-color: #007acc; color: white; padding: 1rem; text-align: center; }
@@ -11,13 +11,33 @@
 </head>
 <body>
 <header>
-    <h1>Viaje Mais - Seu sonho começa aqui</h1>
+    <h1>Viage Mais - Seu sonho começa aqui</h1>
 </header>
-<div th:each="destino : ${destinos}" class="destino">
-    <h2 th:text="${destino.local}"></h2>
-    <p><strong>Categoria:</strong> <span th:text="${destino.categoria}"></span></p>
-    <p><strong>Preço:</strong> R$<span th:text="${destino.preco}"></span></p>
-    <img th:src="${destino.imagemUrl}" alt="Imagem do destino">
-</div>
+
+<form action="/contratacao/novo" method="get">
+    <div th:each="destino : ${destinos}" class="destino">
+        <input type="checkbox" name="destinos" th:value="${destino.id}"/>
+        <h2 th:text="${destino.local}"></h2>
+        <p><strong>Categoria:</strong> <span th:text="${destino.categoria}"></span></p>
+        <p><strong>Preço:</strong> R$<span th:text="${destino.preco}"></span></p>
+        <img th:src="${destino.imagemUrl}" alt="Imagem do destino">
+    </div>
+    
+	<div style="text-align:center; margin-top:20px;">
+	    <button type="submit" style="
+	        background-color: #007acc;
+	        color: white;
+	        padding: 10px 20px;
+	        font-size: 1.1rem;
+	        border: none;
+	        border-radius: 8px;
+	        cursor: pointer;
+	        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+	    ">
+	        Contratar Selecionados
+	    </button>
+	</div>
+
+</form>
 </body>
 </html>
