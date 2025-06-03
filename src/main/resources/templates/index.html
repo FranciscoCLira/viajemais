@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Viaje Mais</title>
+    <style>
+        body { font-family: sans-serif; background-color: #e0f7ff; color: #003366; }
+        header { background-color: #007acc; color: white; padding: 1rem; text-align: center; }
+        .destino { border: 1px solid #007acc; margin: 1rem; padding: 1rem; border-radius: 10px; background-color: #ffffff; }
+        .destino img { width: 100%; max-width: 300px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Viaje Mais - Seu sonho começa aqui</h1>
+</header>
+<div th:each="destino : ${destinos}" class="destino">
+    <h2 th:text="${destino.local}"></h2>
+    <p><strong>Categoria:</strong> <span th:text="${destino.categoria}"></span></p>
+    <p><strong>Preço:</strong> R$<span th:text="${destino.preco}"></span></p>
+    <img th:src="${destino.imagemUrl}" alt="Imagem do destino">
+</div>
+</body>
+</html>
