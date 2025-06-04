@@ -133,4 +133,10 @@ footer {
     background-color: #005fa3;
 }
 
+input[type="date"] {
+    width: 120px; /* ajustável conforme seu gosto */
+    padding: 4px;
+}
+
+
 

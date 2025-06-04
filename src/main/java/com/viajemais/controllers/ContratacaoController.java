@@ -32,12 +32,15 @@ public class ContratacaoController {
     }
 
     @PostMapping("/selecionar")
-    public String selecionarDestinos(@RequestParam List<Long> destinosSelecionados, Model model) {
+    public String selecionarDestinos(@RequestParam(required = false) List<Long> destinosSelecionados, Model model) {
+        if (destinosSelecionados == null || destinosSelecionados.isEmpty()) {
+            return "redirect:/"; // ou exibir uma mensagem de erro
+        }
         List<Destino> destinos = destinoService.buscarPorIds(destinosSelecionados);
         model.addAttribute("destinosSelecionados", destinos);
         return "contratacao-form";
     }
-
+    
     @PostMapping("/confirmar")
     public String confirmarContratacao(
             @RequestParam List<Long> destinos,

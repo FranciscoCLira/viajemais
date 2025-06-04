@@ -19,7 +19,7 @@ public class ItemContratacao {
 
     
     @Column(nullable = false)
-    private double precoUnitario;
+    private Double precoUnitario;
 
     
     // Getters e setters
@@ -45,10 +45,10 @@ public class ItemContratacao {
 		this.destino = destino;
 	}
 	
-	public double getPrecoUnitario() {
+	public Double getPrecoUnitario() {
 		return precoUnitario;
 	}
-	public void setPrecoUnitario(double precoUnitario) {
+	public void setPrecoUnitario(Double precoUnitario) {
 		this.precoUnitario = precoUnitario;
 	}
 }

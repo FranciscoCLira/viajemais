@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface ContratacaoRepository extends JpaRepository<Contratacao, Long> {
 
-	@Query("SELECT c FROM Contratacao c LEFT JOIN FETCH c.destinos d LEFT JOIN FETCH d.destino")
+	@Query("SELECT c FROM Contratacao c LEFT JOIN FETCH c.itens i LEFT JOIN FETCH i.destino")
 	List<Contratacao> buscarComDestinos();
+
 
 }

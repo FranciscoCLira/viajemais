@@ -11,9 +11,9 @@
     <div th:each="contratacao : ${contratacoes}" class="contratacao-box">
         <h2 th:text="'Cliente: ' + ${contratacao.nomeCliente}"></h2>
         <p>
-            Período: 
-            <span th:text="${#dates.format(contratacao.periodoInicio, 'dd/MM/yyyy')}"></span> até 
-            <span th:text="${#dates.format(contratacao.periodoFim, 'dd/MM/yyyy')}"></span>
+            Período:
+            <span th:text="${#temporals.format(contratacao.periodoInicio, 'dd/MM/yyyy')}"></span> até
+            <span th:text="${#temporals.format(contratacao.periodoFim, 'dd/MM/yyyy')}"></span>
         </p>
         <p th:text="'Quantidade de Pessoas: ' + ${contratacao.quantidadePessoas}"></p>
 
@@ -21,17 +21,15 @@
         <ul>
             <li th:each="item : ${contratacao.itens}">
                 <span th:text="${item.destino.local}"></span> -
-                R$<span th:text="${#numbers.formatDecimal(item.precoUnitario, 2, 'COMMA', '.', '2')}"></span>
+                R$<span th:text="${T(java.lang.String).format('%.2f', item.precoUnitario)}"></span>
             </li>
         </ul>
 
-        <p>
-            <strong>Total da Viagem:</strong>
-            <span th:if="${contratacao.itens != null}">
-                R$<span th:text="${#numbers.formatDecimal(contratacao.itens.stream().mapToDouble(i -> i.precoUnitario).sum(), 2, 'COMMA', '.', '2')}"></span>
-            </span>
-        </p>
-
+		<p>
+		    <strong>Total da Viagem:</strong>
+		    R$<span th:text="${T(java.lang.String).format('%.2f', contratacao.total)}"></span>
+		</p>
+ 
         <hr/>
     </div>
 
