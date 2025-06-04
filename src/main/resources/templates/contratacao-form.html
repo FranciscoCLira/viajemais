@@ -5,48 +5,37 @@
     <link rel="stylesheet" href="/css/estilo.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Confirmação de Viagem</h1>
-        <form action="/contratacao/confirmar" method="post">
-            <h2>Destinos Selecionados</h2>
-            <ul>
-                <li th:each="destino : ${destinosSelecionados}">
-                    <input type="hidden" name="destinos" th:value="${destino.id}"/>
-                    <span th:text="${destino.local}"></span> - R$<span th:text="${destino.preco}"></span>
-                </li>
-            </ul>
+<div class="container">
+    <h1>Confirmação de Viagem</h1>
+    <form action="/contratacao/confirmar" method="post">
+        <h2>Destinos Selecionados</h2>
+        <ul>
+            <li th:each="destino : ${destinosSelecionados}">
+                <input type="hidden" name="destinos" th:value="${destino.id}" />
+                <span th:text="${destino.local}"></span> -
+                R$<span th:text="${#numbers.formatDecimal(destino.preco, 2, 'COMMA', '.', '2')}"></span>
+            </li>
+        </ul>
 
-            <h2>Dados do Cliente</h2>
-            <label for="nomeCliente">Nome:</label>
-            <input type="text" id="nomeCliente" name="nomeCliente" required><br><br>
+        <h2>Dados do Cliente</h2>
+        <label for="nomeCliente">Nome:</label>
+        <input type="text" id="nomeCliente" name="nomeCliente" required><br><br>
 
-			<div class="campo-data">
-			    <label for="inicio">Data de início:</label>
-			    <div class="input-icon">
-			        <label class="calendar-wrapper">
-			            <span class="icon">📅</span>
-			            <input type="date" id="inicio" name="periodoInicio" required>
-			        </label>
-			    </div>
-			</div>
-			
-			<div class="campo-data">
-			    <label for="fim">Data de término:</label>
-			    <div class="input-icon">
-			        <label class="calendar-wrapper">
-			            <span class="icon">📅</span>
-			            <input type="date" id="fim" name="periodoFim" required>
-			        </label>
-			    </div>
-			</div>
+        <label for="quantidadePessoas">Quantidade de Pessoas:</label>
+        <input type="number" id="quantidadePessoas" name="quantidadePessoas" min="1" required><br><br>
 
+        <label for="inicio">Data de início:</label>
+        <input type="date" id="inicio" name="periodoInicio" required><br><br>
 
-            <button type="submit" class="confirmar">Confirmar</button>
-        </form>
+        <label for="fim">Data de término:</label>
+        <input type="date" id="fim" name="periodoFim" required><br><br>
 
-        <form action="/contratacao/cancelar" method="post" style="margin-top:10px;">
-            <button type="submit" class="cancelar">Cancelar</button>
-        </form>
-    </div>
+        <button type="submit" class="confirmar">Confirmar</button>
+    </form>
+
+    <form action="/contratacao/cancelar" method="post" style="margin-top:10px;">
+        <button type="submit" class="cancelar">Cancelar</button>
+    </form>
+</div>
 </body>
 </html>

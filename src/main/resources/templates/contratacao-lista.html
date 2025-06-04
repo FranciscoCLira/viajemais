@@ -8,26 +8,34 @@
 <div class="container">
     <h1>Histórico de Contratações</h1>
 
-    <div th:if="${#lists.isEmpty(contratacoes)}">
-        <p>Nenhuma contratação encontrada.</p>
-    </div>
-
-    <div th:each="contrato : ${contratacoes}" class="destino">
-        <h2 th:text="${contrato.nomeCliente}">Nome do Cliente</h2>
-        <p><strong>Data da contratação:</strong> <span th:text="${contrato.data}"></span></p>
-        <p><strong>Período:</strong> 
-            <span th:text="${contrato.periodoInicio}"></span> até 
-            <span th:text="${contrato.periodoFim}"></span>
+    <div th:each="contratacao : ${contratacoes}" class="contratacao-box">
+        <h2 th:text="'Cliente: ' + ${contratacao.nomeCliente}"></h2>
+        <p>
+            Período: 
+            <span th:text="${#dates.format(contratacao.periodoInicio, 'dd/MM/yyyy')}"></span> até 
+            <span th:text="${#dates.format(contratacao.periodoFim, 'dd/MM/yyyy')}"></span>
         </p>
-        <p><strong>Destinos:</strong></p>
+        <p th:text="'Quantidade de Pessoas: ' + ${contratacao.quantidadePessoas}"></p>
+
+        <h3>Destinos:</h3>
         <ul>
-            <li th:each="cd : ${contrato.destinos}" th:text="${cd.destino.local} + ' - R$' + cd.destino.preco"></li>
+            <li th:each="item : ${contratacao.itens}">
+                <span th:text="${item.destino.local}"></span> -
+                R$<span th:text="${#numbers.formatDecimal(item.precoUnitario, 2, 'COMMA', '.', '2')}"></span>
+            </li>
         </ul>
+
+        <p>
+            <strong>Total da Viagem:</strong>
+            <span th:if="${contratacao.itens != null}">
+                R$<span th:text="${#numbers.formatDecimal(contratacao.itens.stream().mapToDouble(i -> i.precoUnitario).sum(), 2, 'COMMA', '.', '2')}"></span>
+            </span>
+        </p>
+
+        <hr/>
     </div>
 
-    <form action="/" method="get">
-        <button type="submit" class="cancelar">Voltar</button>
-    </form>
+    <a href="/" class="botao-voltar">Voltar à página inicial</a>
 </div>
 </body>
 </html>

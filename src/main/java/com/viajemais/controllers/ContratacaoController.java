@@ -2,9 +2,11 @@ package com.viajemais.controllers;
 
 import com.viajemais.entities.Contratacao;
 import com.viajemais.entities.Destino;
-import com.viajemais.services.ContratacaoDestinoService;
+import com.viajemais.entities.ItemContratacao;
 import com.viajemais.services.ContratacaoService;
 import com.viajemais.services.DestinoService;
+import com.viajemais.services.ItemContratacaoService;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,12 +21,14 @@ public class ContratacaoController {
 
     private final DestinoService destinoService;
     private final ContratacaoService contratacaoService;
-    private final ContratacaoDestinoService contratacaoDestinoService;
+    private final ItemContratacaoService itemContratacaoService;
 
-    public ContratacaoController(DestinoService destinoService, ContratacaoService contratacaoService, ContratacaoDestinoService contratacaoDestinoService) {
+    public ContratacaoController(DestinoService destinoService,
+                                 ContratacaoService contratacaoService,
+                                 ItemContratacaoService itemContratacaoService) {
         this.destinoService = destinoService;
         this.contratacaoService = contratacaoService;
-        this.contratacaoDestinoService = contratacaoDestinoService;
+        this.itemContratacaoService = itemContratacaoService;
     }
 
     @PostMapping("/selecionar")
@@ -38,6 +42,7 @@ public class ContratacaoController {
     public String confirmarContratacao(
             @RequestParam List<Long> destinos,
             @RequestParam String nomeCliente,
+            @RequestParam int quantidadePessoas,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodoInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodoFim) {
 
@@ -45,13 +50,20 @@ public class ContratacaoController {
         contratacao.setNomeCliente(nomeCliente);
         contratacao.setPeriodoInicio(periodoInicio);
         contratacao.setPeriodoFim(periodoFim);
+        contratacao.setQuantidadePessoas(quantidadePessoas);
         contratacao.setData(LocalDate.now());
 
         contratacao = contratacaoService.salvar(contratacao);
 
         for (Long id : destinos) {
             Destino destino = destinoService.buscarPorId(id);
-            contratacaoDestinoService.salvar(contratacao, destino);
+            if (destino != null) {
+                ItemContratacao item = new ItemContratacao();
+                item.setContratacao(contratacao);
+                item.setDestino(destino);
+                item.setPrecoUnitario(destino.getPreco());
+                itemContratacaoService.salvar(item);
+            }
         }
 
         return "redirect:/contratacao/historico";
@@ -65,7 +77,13 @@ public class ContratacaoController {
     @GetMapping("/historico")
     public String historico(Model model) {
         List<Contratacao> contratacoes = contratacaoService.listarTodas();
+
+        for (Contratacao c : contratacoes) {
+            List<ItemContratacao> itens = itemContratacaoService.buscarItensPorContratacao(c.getId());
+            c.setItens(itens); // ✅ requer getItens/setItens em Contratacao
+        }
+
         model.addAttribute("contratacoes", contratacoes);
         return "contratacao-lista";
     }
-} 
+}

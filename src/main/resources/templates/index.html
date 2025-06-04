@@ -6,7 +6,14 @@
 </head>
 <body>
 <div class="container">
+
+    <!-- Botão no canto superior direito -->
+    <div style="text-align: right; margin-bottom: 1rem;">
+        <a href="/destinos" class="botao-destinos">Ver Destinos</a>
+    </div>
+
     <h1>Viage Mais - Seu sonho começa aqui</h1>
+
     <form action="/contratacao/selecionar" method="post">
         <div th:each="destino : ${destinos}" class="destino">
             <label>

@@ -12,12 +12,19 @@ public class Contratacao {
     private Long id;
 
     private String nomeCliente;
+    
+    @Column(nullable = false)
+    private int quantidadePessoas;
+    
     private LocalDate data;
     private LocalDate periodoInicio;
     private LocalDate periodoFim;
 
     @OneToMany(mappedBy = "contratacao", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ContratacaoDestino> destinos;
+    
+    @OneToMany(mappedBy = "contratacao", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ItemContratacao> itens;
 
     // Getters e Setters
     public Long getId() {
@@ -28,6 +35,14 @@ public class Contratacao {
         return nomeCliente;
     }
 
+    public int getQuantidadePessoas() {
+        return quantidadePessoas;
+    }
+
+    public void setQuantidadePessoas(int quantidadePessoas) {
+        this.quantidadePessoas = quantidadePessoas;
+    }    
+    
     public LocalDate getData() {
         return data;
     }
@@ -42,6 +57,10 @@ public class Contratacao {
 
     public List<ContratacaoDestino> getDestinos() {
         return destinos;
+    }
+    
+    public List<ItemContratacao> getItens() {
+        return itens;
     }
 
     public void setId(Long id) {
@@ -67,4 +86,9 @@ public class Contratacao {
     public void setDestinos(List<ContratacaoDestino> destinos) {
         this.destinos = destinos;
     }
+    
+    public void setItens(List<ItemContratacao> itens) {
+        this.itens = itens;
+    }
+    
 }

@@ -120,3 +120,17 @@ footer {
     cursor: pointer;
 }
 
+.botao-destinos {
+    background-color: #007acc;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.botao-destinos:hover {
+    background-color: #005fa3;
+}
+
+
