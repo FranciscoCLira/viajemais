@@ -10,11 +10,11 @@ public class ContratacaoDestino {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "contratacao_id", nullable = false)
+    @JoinColumn(name = "contratacao_id")
     private Contratacao contratacao;
 
     @ManyToOne
-    @JoinColumn(name = "destino_id", nullable = false)
+    @JoinColumn(name = "destino_id")
     private Destino destino;
 
     // Futuro: campo extra como quantidade, data personalizada, etc.

@@ -1,10 +1,13 @@
 package com.viajemais.services;
 
+import com.viajemais.entities.Contratacao;
 import com.viajemais.entities.ContratacaoDestino;
+import com.viajemais.entities.Destino;
 import com.viajemais.repositories.ContratacaoDestinoRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public class ContratacaoDestinoService {
@@ -15,11 +18,16 @@ public class ContratacaoDestinoService {
         this.contratacaoDestinoRepository = contratacaoDestinoRepository;
     }
 
-    public List<ContratacaoDestino> listarTodos() {
-        return contratacaoDestinoRepository.findAll();
+    public ContratacaoDestino salvar(Contratacao contratacao, Destino destino) {
+        ContratacaoDestino cd = new ContratacaoDestino();
+        cd.setContratacao(contratacao);
+        cd.setDestino(destino);
+        return contratacaoDestinoRepository.save(cd);
     }
 
-    public ContratacaoDestino salvar(ContratacaoDestino contratacaoDestino) {
-        return contratacaoDestinoRepository.save(contratacaoDestino);
+    // Adicione métodos adicionais conforme necessário (ex: listar por contratacao, etc.)
+
+    public List<ContratacaoDestino> listarTodos() {
+        return contratacaoDestinoRepository.findAll();
     }
 }

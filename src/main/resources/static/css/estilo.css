@@ -1,0 +1,122 @@
+body {
+    font-family: sans-serif;
+    background-color: #f0f8ff;
+    color: #003366;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #007acc;
+    margin-bottom: 12px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 6px 0;
+}
+
+input[type="text"],
+input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    margin: 4px 0 12px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.destino {
+    border: 1px solid #007acc;
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+
+.destino img {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 10px;
+}
+
+.destino input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+button.confirmar {
+    background-color: #007acc;
+    color: white;
+    padding: 12px 24px;
+    font-weight: bold;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button.confirmar:hover {
+    background-color: #005f99;
+}
+
+button.cancelar {
+    background-color: #ccc;
+    color: #333;
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button.cancelar:hover {
+    background-color: #aaa;
+}
+
+footer {
+    margin-top: 30px;
+    text-align: center;
+    color: #666;
+    font-size: 13px;
+    padding-top: 10px;
+}
+
+.input-icon {
+    margin-bottom: 15px;
+}
+
+.calendar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 6px 10px;
+    background-color: white;
+    cursor: pointer;
+    width: fit-content;
+}
+
+.calendar-wrapper input[type="date"] {
+    border: none;
+    outline: none;
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 1em;
+    cursor: pointer;
+}
+

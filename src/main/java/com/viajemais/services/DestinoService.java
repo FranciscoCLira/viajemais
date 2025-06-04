@@ -15,11 +15,15 @@ public class DestinoService {
         this.destinoRepository = destinoRepository;
     }
 
-    public List<Destino> listarTodos() {
-        return destinoRepository.findAll();
+    public List<Destino> buscarPorIds(List<Long> ids) {
+        return destinoRepository.findAllById(ids);
     }
 
     public Destino buscarPorId(Long id) {
-        return destinoRepository.findById(id).orElse(null);
+        return destinoRepository.findById(id).orElseThrow();
     }
-}
+
+    public List<Destino> listarTodos() {
+        return destinoRepository.findAll();
+    }
+} 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Histórico de Contratações</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+<div class="container">
+    <h1>Histórico de Contratações</h1>
+
+    <div th:if="${#lists.isEmpty(contratacoes)}">
+        <p>Nenhuma contratação encontrada.</p>
+    </div>
+
+    <div th:each="contrato : ${contratacoes}" class="destino">
+        <h2 th:text="${contrato.nomeCliente}">Nome do Cliente</h2>
+        <p><strong>Data da contratação:</strong> <span th:text="${contrato.data}"></span></p>
+        <p><strong>Período:</strong> 
+            <span th:text="${contrato.periodoInicio}"></span> até 
+            <span th:text="${contrato.periodoFim}"></span>
+        </p>
+        <p><strong>Destinos:</strong></p>
+        <ul>
+            <li th:each="cd : ${contrato.destinos}" th:text="${cd.destino.local} + ' - R$' + cd.destino.preco"></li>
+        </ul>
+    </div>
+
+    <form action="/" method="get">
+        <button type="submit" class="cancelar">Voltar</button>
+    </form>
+</div>
+</body>
+</html>

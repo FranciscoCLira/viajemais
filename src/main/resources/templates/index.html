@@ -2,42 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Viage Mais</title>
-    <style>
-        body { font-family: sans-serif; background-color: #e0f7ff; color: #003366; }
-        header { background-color: #007acc; color: white; padding: 1rem; text-align: center; }
-        .destino { border: 1px solid #007acc; margin: 1rem; padding: 1rem; border-radius: 10px; background-color: #ffffff; }
-        .destino img { width: 100%; max-width: 300px; border-radius: 10px; }
-    </style>
+    <link rel="stylesheet" href="/css/estilo.css">
 </head>
 <body>
-<header>
+<div class="container">
     <h1>Viage Mais - Seu sonho começa aqui</h1>
-</header>
-
-<form action="/contratacao/novo" method="get">
-    <div th:each="destino : ${destinos}" class="destino">
-        <input type="checkbox" name="destinos" th:value="${destino.id}"/>
-        <h2 th:text="${destino.local}"></h2>
-        <p><strong>Categoria:</strong> <span th:text="${destino.categoria}"></span></p>
-        <p><strong>Preço:</strong> R$<span th:text="${destino.preco}"></span></p>
-        <img th:src="${destino.imagemUrl}" alt="Imagem do destino">
-    </div>
-    
-	<div style="text-align:center; margin-top:20px;">
-	    <button type="submit" style="
-	        background-color: #007acc;
-	        color: white;
-	        padding: 10px 20px;
-	        font-size: 1.1rem;
-	        border: none;
-	        border-radius: 8px;
-	        cursor: pointer;
-	        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-	    ">
-	        Contratar Selecionados
-	    </button>
-	</div>
-
-</form>
+    <form action="/contratacao/selecionar" method="post">
+        <div th:each="destino : ${destinos}" class="destino">
+            <label>
+                <input type="checkbox" name="destinosSelecionados" th:value="${destino.id}">
+                <strong th:text="${destino.local}"></strong> - R$<span th:text="${destino.preco}"></span>
+            </label>
+            <p><strong>Categoria:</strong> <span th:text="${destino.categoria}"></span></p>
+            <img th:src="${destino.imagemUrl}" alt="Imagem do destino">
+        </div>
+        <button type="submit" class="confirmar">Contratar selecionados</button>
+    </form>
+</div>
 </body>
 </html>

@@ -2,22 +2,51 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Confirmar Contratação</title>
+    <link rel="stylesheet" href="/css/estilo.css">
 </head>
 <body>
-    <h1>Confirmação de Viagem</h1>
-    <form action="/contratacao/confirmar" method="post">
-        <ul>
-            <li th:each="destino : ${destinosSelecionados}">
-                <input type="hidden" name="destinos" th:value="${destino.id}"/>
-                <span th:text="${destino.local}"></span> - R$<span th:text="${destino.preco}"></span>
-            </li>
-        </ul>
-        <div>
-            <button type="submit">Confirmar</button>
-        </div>
-    </form>
-    <form action="/contratacao/cancelar" method="post" style="margin-top:10px;">
-        <button type="submit">Cancelar</button>
-    </form>
+    <div class="container">
+        <h1>Confirmação de Viagem</h1>
+        <form action="/contratacao/confirmar" method="post">
+            <h2>Destinos Selecionados</h2>
+            <ul>
+                <li th:each="destino : ${destinosSelecionados}">
+                    <input type="hidden" name="destinos" th:value="${destino.id}"/>
+                    <span th:text="${destino.local}"></span> - R$<span th:text="${destino.preco}"></span>
+                </li>
+            </ul>
+
+            <h2>Dados do Cliente</h2>
+            <label for="nomeCliente">Nome:</label>
+            <input type="text" id="nomeCliente" name="nomeCliente" required><br><br>
+
+			<div class="campo-data">
+			    <label for="inicio">Data de início:</label>
+			    <div class="input-icon">
+			        <label class="calendar-wrapper">
+			            <span class="icon">📅</span>
+			            <input type="date" id="inicio" name="periodoInicio" required>
+			        </label>
+			    </div>
+			</div>
+			
+			<div class="campo-data">
+			    <label for="fim">Data de término:</label>
+			    <div class="input-icon">
+			        <label class="calendar-wrapper">
+			            <span class="icon">📅</span>
+			            <input type="date" id="fim" name="periodoFim" required>
+			        </label>
+			    </div>
+			</div>
+
+
+            <button type="submit" class="confirmar">Confirmar</button>
+        </form>
+
+        <form action="/contratacao/cancelar" method="post" style="margin-top:10px;">
+            <button type="submit" class="cancelar">Cancelar</button>
+        </form>
+    </div>
 </body>
 </html>
