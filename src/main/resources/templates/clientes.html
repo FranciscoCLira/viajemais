@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Clientes</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+<div class="container">
+    <h1>Clientes Cadastrados</h1>
+
+    <!-- Botão Novo Cliente -->
+    <div style="text-align: right; margin-bottom: 1rem;">
+        <a href="/clientes/novo" class="botao-confirmar">Novo Cliente</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código</th>
+                <th>Nome</th>
+                <th>Situação</th>
+                <th>Data de Cadastro</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${clientes}">
+                <td th:text="${c.id}"></td>
+                <td th:text="${c.codCliente}"></td>
+                <td th:text="${c.nomeCliente}"></td>
+                <td th:text="${c.situacaoCliente}"></td>
+                <td th:text="${#temporals.format(c.dataCadastro, 'dd/MM/yyyy')}"></td>
+                <td>
+                    <a th:href="@{'/clientes/editar/' + ${c.id}}">Editar</a> |
+                    <a th:href="@{'/clientes/excluir/' + ${c.id}}"
+                       onclick="return confirm('Confirma a exclusão?');">Excluir</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a href="/" class="botao-voltar">Voltar à página inicial</a>
+</div>
+</body>
+</html>
