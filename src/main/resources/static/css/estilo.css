@@ -133,6 +133,21 @@ footer {
     background-color: #005fa3;
 }
 
+.botao-historico {
+    background-color: #4CAF50; /* verde */
+    color: white;
+    padding: 10px 16px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.botao-historico:hover {
+    background-color: #45a049;
+}
+
+
 input[type="date"] {
     width: 120px; /* ajustável conforme seu gosto */
     padding: 4px;
