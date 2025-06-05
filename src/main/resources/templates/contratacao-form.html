@@ -13,7 +13,7 @@
             <li th:each="destino : ${destinosSelecionados}">
                 <input type="hidden" name="destinos" th:value="${destino.id}" />
                 <span th:text="${destino.local}"></span> -
-                R$<span th:text="${#numbers.formatDecimal(destino.preco, 1, 2)}"></span>
+                R$<span th:text="${T(com.viajemais.util.FormatadorUtil).formatarMoeda(destino.preco)}"></span>
             </li>
         </ul>
 

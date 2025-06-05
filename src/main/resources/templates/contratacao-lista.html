@@ -9,6 +9,7 @@
     <h1>Histórico de Contratações</h1>
 
     <div th:each="contratacao : ${contratacoes}" class="contratacao-box">
+
         <h2 th:text="'Cliente: ' + ${contratacao.nomeCliente}"></h2>
         <p>
             Período:
@@ -21,19 +22,24 @@
         <ul>
             <li th:each="item : ${contratacao.itens}">
                 <span th:text="${item.destino.local}"></span> -
-                R$<span th:text="${T(java.lang.String).format('%.2f', item.precoUnitario)}"></span>
+                <span th:text="${T(com.viajemais.util.FormatadorUtil).formatarMoeda(item.precoUnitario)}"></span>
             </li>
         </ul>
 
-		<p>
-		    <strong>Total da Viagem:</strong>
-		    R$<span th:text="${T(java.lang.String).format('%.2f', contratacao.total)}"></span>
-		</p>
- 
+        <p>
+            <strong>Total da Viagem:</strong>
+            <span th:text="${T(com.viajemais.util.FormatadorUtil).formatarMoeda(contratacao.calcularSubtotal() * contratacao.quantidadePessoas)}"></span>
+        </p>
+
         <hr/>
     </div>
 
-    <a href="/" class="botao-voltar">Voltar à página inicial</a>
+    <div style="text-align: center; margin-top: 20px;">
+    <form action="/" method="get">
+        <button type="submit" class="voltar">Voltar à página inicial</button>
+    </form>
+</div>
+
 </div>
 </body>
 </html>

@@ -34,6 +34,15 @@ public class Contratacao {
                     .mapToDouble(ItemContratacao::getPrecoUnitario)
                     .sum() * quantidadePessoas;
     }
+    
+    public double calcularSubtotal() {
+        if (itens == null) return 0.0;
+        return itens.stream()
+                    .filter(i -> i.getPrecoUnitario() != null)
+                    .mapToDouble(ItemContratacao::getPrecoUnitario)
+                    .sum();
+    }
+
 
     // Getters e Setters
 

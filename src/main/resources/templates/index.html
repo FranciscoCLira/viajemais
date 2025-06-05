@@ -7,18 +7,15 @@
 <body>
 <div class="container">
 
-    <!-- Botão no canto superior direito -->
-    <div style="text-align: right; margin-bottom: 1rem;">
-        <a href="/destinos" class="botao-destinos">Ver Destinos</a>
-    </div>
 
-    <h1>Viage Mais - Seu sonho começa aqui</h1>
+    <h1>Viaje Mais - Seu sonho começa aqui</h1>
 
     <form action="/contratacao/selecionar" method="post">
         <div th:each="destino : ${destinos}" class="destino">
             <label>
                 <input type="checkbox" name="destinosSelecionados" th:value="${destino.id}">
-                <strong th:text="${destino.local}"></strong> - R$<span th:text="${destino.preco}"></span>
+                <strong th:text="${destino.local}"></strong> - 
+                R$<span th:text="${T(com.viajemais.util.FormatadorUtil).formatarMoeda(destino.preco)}"></span>
             </label>
             <p><strong>Categoria:</strong> <span th:text="${destino.categoria}"></span></p>
             <img th:src="${destino.imagemUrl}" alt="Imagem do destino">
