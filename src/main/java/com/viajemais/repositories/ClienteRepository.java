@@ -8,7 +8,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     
     boolean existsByCodCliente(Integer codCliente);
     
+    boolean existsByNomeCliente(String nomeCliente);
+
     @Query("SELECT MAX(c.codCliente) FROM Cliente c")
     Long findMaxCodCliente();
-
 }

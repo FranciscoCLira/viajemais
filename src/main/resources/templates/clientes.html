@@ -4,54 +4,137 @@
     <meta charset="UTF-8">
     <title>Clientes Cadastrados</title>
     <link rel="stylesheet" th:href="@{/css/estilo.css}">
+    <style>
+        /* Reduzir espaço interno de células para diminuir altura da linha */
+        table th, table td {
+            padding: 0.2rem 0.4rem;
+            vertical-align: middle;
+        }
+        /* Ajustar altura dos botões para ficarem bem menores */
+        .confirmar, .cancelar {
+            padding: 0.15rem 0.35rem;
+            font-size: 0.75rem;
+            width: 80px;
+        }
+        /* Alinhar horizontalmente o botão centralizado na célula */
+        .acoes-cell {
+            text-align: center;
+        }
+        /* Aumentar largura do select de situação e reduzir altura */
+        .situacao-select {
+            width: 120px;
+            padding: 0.15rem;
+            font-size: 0.8rem;
+        }
+        /* Reduzir margem inferior do cabeçalho */
+        .header-row {
+            margin-bottom: 0.3rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Clientes Cadastrados</h1>
+        <!-- Cabeçalho com título e botão “Novo Cliente” no canto direito -->
+        <div class="header-row" style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin: 0;">Clientes Cadastrados</h1>
+            <!-- Botão “Novo Cliente” ajustado para usar apenas a classe confirmar, igual ao rodapé -->
+            <a th:href="@{/clientes/novo}" class="confirmar">Novo Cliente</a>
+        </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Nome</th>
+                    <th>Cod. Cliente</th>
+                    <th>Nome do Cliente</th>
+                    <th>Data de Cadastro</th>
                     <th>Situação</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="cliente : ${listaDeClientes}">
-                    <td th:text="${cliente.nomeCliente}">Nome Cliente</td>
-                    <td>
-                        <span th:switch="${cliente.situacaoCliente}">
-                            <span th:case="'A'">Ativo</span>
-                            <span th:case="'I'">Inativo</span>
-                            <span th:case="'P'">Pendente</span>
-                            <span th:case="'C'">Cancelado</span>
-                            <span th:case="*">—</span>
-                        </span>
-                    </td>
-                    <td>
-                        <!-- Botão Editar (sempre visível) -->
-                        <a th:href="@{/clientes/editar/{id}(id=${cliente.id})}"
-                           class="voltar">
-                            Editar
-                        </a>
+                    <!-- CodCliente -->
+                    <td th:text="${cliente.codCliente}">123</td>
 
-                        <!-- Botão Excluir só se cliente não estiver Ativo -->
-                        <a th:if="${cliente.situacaoCliente != 'A'}"
-                           th:href="@{/clientes/excluir/{id}(id=${cliente.id})}"
-                           class="cancelar"
-                           onclick="return confirm('Confirma exclusão deste cliente?');">
+                    <!-- NomeCliente -->
+                    <td th:text="${cliente.nomeCliente}">Nome Exemplo</td>
+
+                    <!-- Data de Cadastro -->
+                    <td th:text="${cliente.dataCadastro != null} ? ${#temporals.format(cliente.dataCadastro, 'dd/MM/yyyy')} : ''">
+                        01/01/2025
+                    </td>
+
+                    <!-- Situação (select) -->
+                    <td>
+                        <!-- Form vazio para receber id e situação via atributo form -->
+                        <form th:id="${'frm-' + cliente.id}"
+                              th:action="@{/clientes/atualizar-situacao}"
+                              method="post">
+                            <input type="hidden" name="id" th:value="${cliente.id}">
+                        </form>
+                        <select name="situacaoCliente"
+                                th:attr="form=${'frm-' + cliente.id}, data-id=${cliente.id}"
+                                required
+                                class="situacao-select"
+                                onchange="onSituationChange(this)">
+                            <option value="A" th:selected="${cliente.situacaoCliente == 'A'}">Ativo</option>
+                            <option value="I" th:selected="${cliente.situacaoCliente == 'I'}">Inativo</option>
+                            <option value="P" th:selected="${cliente.situacaoCliente == 'P'}">Pendente</option>
+                            <option value="C" th:selected="${cliente.situacaoCliente == 'C'}">Cancelado</option>
+                        </select>
+                    </td>
+
+                    <!-- Ações: exibe apenas um botão por vez, centralizado -->
+                    <td class="acoes-cell">
+                        <!-- Botão “Atualizar”: oculto se situação inicial for 'C' -->
+                        <button type="submit"
+                                th:attr="form=${'frm-' + cliente.id}"
+                                class="confirmar"
+                                th:id="${'btnUpdate-' + cliente.id}"
+                                th:style="${cliente.situacaoCliente == 'C'} ? 'display:none;' : ''">
+                            Atualizar
+                        </button>
+
+                        <!-- Botão “Excluir”: oculto se situação ≠ 'C' -->
+                        <button type="button"
+                                class="cancelar"
+                                th:id="${'btnDelete-' + cliente.id}"
+                                th:style="${cliente.situacaoCliente == 'C'} ? '' : 'display:none;'"
+                                th:onclick="|if(confirm('Tem certeza que deseja excluir este cliente?')) window.location.href='@{/clientes/excluir/{id}(id=${cliente.id})}'|">
                             Excluir
-                        </a>
+                        </button>
                     </td>
                 </tr>
             </tbody>
         </table>
 
-        <!-- Botão para criar novo cliente -->
-        <a th:href="@{/clientes/novo}" class="confirmar">
-            Novo Cliente
-        </a>
+        <!-- Botão “Novo Cliente” duplicado no rodapé, centralizado -->
+        <div style="margin-top: 0.3rem; text-align: center;">
+            <a th:href="@{/clientes/novo}" class="confirmar">Novo Cliente</a>
+        </div>
     </div>
+
+    <script>
+        function onSituationChange(selectElem) {
+            var id = selectElem.getAttribute('data-id');
+            var updateBtn = document.getElementById('btnUpdate-' + id);
+            var deleteBtn = document.getElementById('btnDelete-' + id);
+
+            if (selectElem.value === 'C') {
+                if (updateBtn) updateBtn.style.display = 'none';
+                if (deleteBtn) deleteBtn.style.display = 'inline-block';
+            } else {
+                if (updateBtn) updateBtn.style.display = 'inline-block';
+                if (deleteBtn) deleteBtn.style.display = 'none';
+            }
+        }
+
+        // Configura o estado inicial dos botões ao carregar a página
+        window.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.situacao-select').forEach(function(selectElem) {
+                onSituationChange(selectElem);
+            });
+        });
+    </script>
 </body>
 </html>

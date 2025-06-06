@@ -2,6 +2,7 @@ package com.viajemais.services;
 
 import com.viajemais.entities.Cliente;
 import com.viajemais.repositories.ClienteRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,16 +28,19 @@ public class ClienteService {
 
     public Cliente salvar(Cliente cliente) {
         if (cliente.getId() == null) {
-            // Cliente novo
+            // Novo cliente: verifica unicidade de nome
+            if (clienteRepository.existsByNomeCliente(cliente.getNomeCliente())) {
+                throw new DataIntegrityViolationException("Já existe um cliente com este nome");
+            }
+            // Auto incremento codCliente
             Long maiorCodigo = clienteRepository.findMaxCodCliente();
             cliente.setCodCliente((maiorCodigo != null ? maiorCodigo : 0) + 1);
             cliente.setDataCadastro(LocalDate.now());
         }
-
+        // Em edição, nome não deve mudar (controlado no Controller)
         return clienteRepository.save(cliente);
     }
- 
-    
+
     public void excluir(Long id) {
         clienteRepository.deleteById(id);
     }

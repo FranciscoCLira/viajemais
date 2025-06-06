@@ -1,13 +1,17 @@
 package com.viajemais.controllers;
 
-import com.viajemais.entities.Cliente;
-import com.viajemais.services.ClienteService;
+import java.util.List;
 
-import java.time.LocalDate;
-
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import com.viajemais.entities.Cliente;
+import com.viajemais.services.ClienteService;
 
 @Controller
 @RequestMapping("/clientes")
@@ -15,48 +19,86 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
+    @Autowired
     public ClienteController(ClienteService clienteService) {
         this.clienteService = clienteService;
     }
 
-    // Lista todos os clientes
+    // 1) LISTAR TODOS OS CLIENTES
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("clientes", clienteService.listarTodos());
-        return "clientes";
+    public String listarClientes(Model model) {
+        List<Cliente> lista = clienteService.listarTodos();
+        model.addAttribute("listaDeClientes", lista);
+        return "clientes"; // renderiza: src/main/resources/templates/clientes.html
     }
 
-    // Abre o formulário de novo cliente
+    // 2) FORMULÁRIO “NOVO CLIENTE”
     @GetMapping("/novo")
-    public String novo(Model model) {
-        model.addAttribute("cliente", new Cliente());  // garante que cliente não será null
-        return "cliente-form";
+    public String novoCliente(Model model) {
+        model.addAttribute("cliente", new Cliente());
+        model.addAttribute("editar", false);
+        return "cliente-form"; // renderiza: src/main/resources/templates/cliente-form.html
     }
 
-    // Edita cliente existente
+    // 3) FORMULÁRIO “EDITAR CLIENTE” (edição completa)
     @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model) {
+    public String editarCliente(@PathVariable Long id, Model model) {
         Cliente cliente = clienteService.buscarPorId(id)
-                             .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + id));
+            .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + id));
         model.addAttribute("cliente", cliente);
+        model.addAttribute("editar", true);
         return "cliente-form";
     }
 
-    // Salva (criação ou atualização)
+    // 4) SALVAR (criação ou edição completa via cliente-form.html)
     @PostMapping("/salvar")
-    public String salvar(@ModelAttribute Cliente cliente) {
-        if (cliente.getId() == null) {
-            cliente.setDataCadastro(LocalDate.now());
+    public String salvarCliente(
+            @Valid @ModelAttribute("cliente") Cliente cliente,
+            BindingResult result,
+            @RequestParam(value = "editar", defaultValue = "false") boolean editar,
+            Model model) {
+
+        // Se houver erro de validação (nome, tamanho, pattern etc.), volta ao formulário
+        if (result.hasErrors()) {
+            model.addAttribute("editar", editar);
+            return "cliente-form";
         }
-        clienteService.salvar(cliente);
+
+        try {
+            // O próprio ClienteService cuida de: 
+            // • auto-increment de codCliente (se id == null)  
+            // • colocar dataCadastro (dentro de salvar(...) quando id == null)  
+            // • verificação de unicidade de nome (lança DataIntegrityViolationException)
+            clienteService.salvar(cliente);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("erroNome", e.getMessage());
+            model.addAttribute("editar", editar);
+            return "cliente-form";
+        }
+
         return "redirect:/clientes";
     }
 
-
-    // Exclui cliente
+    // 5) EXCLUIR CLIENTE (só se não estiver ativo — condicional na view)
     @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id) {
+    public String excluirCliente(@PathVariable Long id) {
         clienteService.excluir(id);
+        return "redirect:/clientes";
+    }
+
+    // ――― NOVO MÉTODO: ATUALIZAR SOMENTE A SITUAÇÃO (edição inline na lista) ―――
+    @PostMapping("/atualizar-situacao")
+    public String atualizarSituacao(
+            @RequestParam("id") Long id,
+            @RequestParam("situacaoCliente") String situacao) {
+
+        Cliente existente = clienteService.buscarPorId(id)
+            .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + id));
+        existente.setSituacaoCliente(situacao);
+        // Neste caso, clienteService.salvar(existente) só atualiza situação, 
+        // pois id != null e o service não altera codCliente nem dataCadastro.
+        clienteService.salvar(existente);
+
         return "redirect:/clientes";
     }
 }
