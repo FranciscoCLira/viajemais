@@ -1,47 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Clientes</title>
-    <link rel="stylesheet" href="/css/estilo.css">
+    <meta charset="UTF-8">
+    <title>Clientes Cadastrados</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
 </head>
 <body>
-<div class="container">
-    <h1>Clientes Cadastrados</h1>
+    <div class="container">
+        <h1>Clientes Cadastrados</h1>
 
-    <!-- Botão Novo Cliente -->
-    <div style="text-align: right; margin-bottom: 1rem;">
-        <a href="/clientes/novo" class="botao-confirmar">Novo Cliente</a>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Situação</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="cliente : ${listaDeClientes}">
+                    <td th:text="${cliente.nomeCliente}">Nome Cliente</td>
+                    <td>
+                        <span th:switch="${cliente.situacaoCliente}">
+                            <span th:case="'A'">Ativo</span>
+                            <span th:case="'I'">Inativo</span>
+                            <span th:case="'P'">Pendente</span>
+                            <span th:case="'C'">Cancelado</span>
+                            <span th:case="*">—</span>
+                        </span>
+                    </td>
+                    <td>
+                        <!-- Botão Editar (sempre visível) -->
+                        <a th:href="@{/clientes/editar/{id}(id=${cliente.id})}"
+                           class="voltar">
+                            Editar
+                        </a>
+
+                        <!-- Botão Excluir só se cliente não estiver Ativo -->
+                        <a th:if="${cliente.situacaoCliente != 'A'}"
+                           th:href="@{/clientes/excluir/{id}(id=${cliente.id})}"
+                           class="cancelar"
+                           onclick="return confirm('Confirma exclusão deste cliente?');">
+                            Excluir
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Botão para criar novo cliente -->
+        <a th:href="@{/clientes/novo}" class="confirmar">
+            Novo Cliente
+        </a>
     </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Código</th>
-                <th>Nome</th>
-                <th>Situação</th>
-                <th>Data de Cadastro</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="c : ${clientes}">
-                <td th:text="${c.id}"></td>
-                <td th:text="${c.codCliente}"></td>
-                <td th:text="${c.nomeCliente}"></td>
-                <td th:text="${c.situacaoCliente}"></td>
-                <td th:text="${#temporals.format(c.dataCadastro, 'dd/MM/yyyy')}"></td>
-                <td>
-                    <a th:href="@{'/clientes/editar/' + ${c.id}}">Editar</a> |
-                    <a th:href="@{'/clientes/excluir/' + ${c.id}}"
-                       onclick="return confirm('Confirma a exclusão?');">Excluir</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <br>
-    <a href="/" class="botao-voltar">Voltar à página inicial</a>
-</div>
 </body>
 </html>
