@@ -47,6 +47,41 @@ button, .botao-voltar {
     display: inline-block;
 }
 
+/* Botão “Cancelar” */
+.cancelar {
+    background-color: #dc3545; /* ex.: vermelho médio */
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Botão “Secundário” (Voltar à página inicial) */
+.secundario {
+    background-color: #6c757d; /* ex.: cinza escuro */
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Para manter o mesmo hover dos outros botões */
+.cancelar:hover,
+.secundario:hover {
+    opacity: 0.9;
+}
+
+
 .botao-destinos {
     background-color: #3498db;
     color: white;
