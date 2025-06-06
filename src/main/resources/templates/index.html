@@ -3,22 +3,32 @@
 <head>
     <title>Viage Mais</title>
     <link rel="stylesheet" href="/css/estilo.css">
+    <script>
+        // Função para submeter o formulário de destinos
+        function contratarSelecionados() {
+            document.getElementById('destinos').submit();
+            return false;
+        }
+    </script>
 </head>
 <body>
 <div class="container">
 
-	<!-- MENU horizontal -->
-	<div style="display: flex; justify-content: flex-end; gap: 1rem; margin-bottom: 1rem;">
-	    <a href="/destinos" class="botao-destinos">Ver Destinos</a>
-	    <a href="/contratacao/historico" class="botao-historico">📜 Histórico</a>
-	    <a href="/clientes/novo" class="botao-cadastro">Cadastrar Cliente</a>
-	</div>
+    <!-- Título -->
+    <div style="text-align: center; margin-bottom: 1rem;">
+        <h1>Viaje Mais - Seu sonho começa aqui</h1>
+    </div>
 
-	
+    <!-- Menu horizontal centralizado -->
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+        <a href="/clientes/novo" class="botao-cadastro">Cadastrar Cliente</a>
+        <a href="#" class="confirmar" onclick="return contratarSelecionados()">Contratar Selecionados</a>
+        <a href="/contratacao/historico" class="botao-historico">Histórico de Contratações</a>
+        <a href="/destinos" class="botao-destinos">Ver Destinos</a>
+    </div>
 
-    <h1>Viaje Mais - Seu sonho começa aqui</h1>
-
-    <form action="/contratacao/selecionar" method="post">
+    <!-- Lista de destinos -->
+    <form id="destinos" action="/contratacao/selecionar" method="post">
         <div th:each="destino : ${destinos}" class="destino">
             <label>
                 <input type="checkbox" name="destinosSelecionados" th:value="${destino.id}">
@@ -28,7 +38,9 @@
             <p><strong>Categoria:</strong> <span th:text="${destino.categoria}"></span></p>
             <img th:src="${destino.imagemUrl}" alt="Imagem do destino">
         </div>
-        <button type="submit" class="confirmar">Contratar selecionados</button>
+        <div style="text-align: center; margin-top: 1rem;">
+            <button type="submit" class="confirmar">Contratar selecionados</button>
+        </div>
     </form>
 </div>
 </body>
