@@ -1,41 +1,110 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Confirmar Contratação</title>
-    <link rel="stylesheet" href="/css/estilo.css">
+  <meta charset="UTF-8">
+  <title>Confirmação de Viagem</title>
+  <!-- Primeiro o CSS base -->
+  <link rel="stylesheet" th:href="@{/css/estilo.css}">
+  <!-- Depois o override -->
+  <style>
+    /* Redimensionamento dos inputs */
+    .campo-nome       { width: 55ch !important; }
+    .campo-quantidade { width: 10ch !important; }
+    .campo-data       { width: 18ch !important; }
+
+    /* Destino e preço em negrito */
+    .destino-item strong.destino-local,
+    .destino-item strong.destino-preco {
+      font-weight: bold !important;
+    }
+
+	.rodape-botoes {
+	    display: flex !important;
+	    justify-content: center !important;
+	    align-items: center !important;   /* <— garante centralização vertical */
+	    gap: 1rem !important;
+	    margin-top: 1.5rem !important;
+	}
+	
+	/* Torna cada botão um inline-flex, garantindo que o conteúdo interno também esteja centrado */
+	.rodape-botoes .confirmar,
+	.rodape-botoes .cancelar {
+	    display: inline-flex !important;
+	    align-items: center !important;
+	    justify-content: center !important;
+	    padding: 0.3rem 0.6rem !important;
+	    font-size: 0.9rem !important;
+	    height: 2rem !important;
+	    box-sizing: border-box !important;
+	    text-decoration: none !important;
+	}
+  </style>
 </head>
 <body>
-<div class="container">
+  <div class="container">
     <h1>Confirmação de Viagem</h1>
-    <form action="/contratacao/confirmar" method="post">
-        <h2>Destinos Selecionados</h2>
-        <ul>
-            <li th:each="destino : ${destinosSelecionados}">
-                <input type="hidden" name="destinos" th:value="${destino.id}" />
-                <span th:text="${destino.local}"></span> -
-                R$<span th:text="${T(com.viajemais.util.FormatadorUtil).formatarMoeda(destino.preco)}"></span>
-            </li>
-        </ul>
 
-        <h2>Dados do Cliente</h2>
-        <label for="nomeCliente">Nome:</label>
-        <input type="text" id="nomeCliente" name="nomeCliente" required><br><br>
+    <form th:action="@{/contratacao/confirmar}" method="post">
+      <!-- destinos selecionados -->
+      <div th:each="destino : ${destinosSelecionados}" class="destino-item">
+        <input type="hidden" name="destinos" th:value="${destino.id}">
+        <p>
+          <!-- Local em negrito -->
+          <strong class="destino-local" th:text="${destino.local}">Local do Destino</strong>
+          ( <span th:text="${destino.categoria}">Categoria</span> )
+          - 
+          <!-- Preço em negrito -->
+          <strong class="destino-preco"
+            th:text="${'R$ ' + #numbers.formatDecimal(destino.preco, 2, 2)}">
+            R$ 0,00
+         </strong>
+        </p>
+      </div>
 
+      <div class="form-group">
+        <label for="nomeCliente">Nome do Cliente:</label>
+        <input type="text"
+               id="nomeCliente"
+               name="nomeCliente"
+               class="campo-nome"
+               maxlength="50"
+               required>
+      </div>
+
+      <div class="form-group">
         <label for="quantidadePessoas">Quantidade de Pessoas:</label>
-        <input type="number" id="quantidadePessoas" name="quantidadePessoas" min="1" required><br><br>
+        <input type="number"
+               id="quantidadePessoas"
+               name="quantidadePessoas"
+               class="campo-quantidade"
+               min="1"
+               max="9999"
+               required>
+      </div>
 
-        <label for="inicio">Data de início:</label>
-        <input type="date" id="inicio" name="periodoInicio" required><br><br>
+      <div class="form-group">
+        <label for="periodoInicio">Data de Início:</label>
+        <input type="date"
+               id="periodoInicio"
+               name="periodoInicio"
+               class="campo-data"
+               required>
+      </div>
 
-        <label for="fim">Data de término:</label>
-        <input type="date" id="fim" name="periodoFim" required><br><br>
+      <div class="form-group">
+        <label for="periodoFim">Data de Término:</label>
+        <input type="date"
+               id="periodoFim"
+               name="periodoFim"
+               class="campo-data"
+               required>
+      </div>
 
-        <button type="submit" class="confirmar">Confirmar</button>
-    </form>
-
-    <form action="/contratacao/cancelar" method="post" style="margin-top:10px;">
-        <button type="submit" class="cancelar">Cancelar</button>
-    </form>
-</div>
+	  <div class="rodape-botoes">
+	    <button type="submit" class="confirmar">Confirmar</button>
+	    <a th:href="@{/contratacao/cancelar}" class="cancelar">Cancelar</a>
+	  </div>
+	</form>
+  </div>
 </body>
 </html>
