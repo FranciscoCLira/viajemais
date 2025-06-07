@@ -43,71 +43,106 @@
   <div class="container">
     <h1>Confirmação de Viagem</h1>
 
-<form th:action="@{/contratacao/confirmar}" method="post">
-  <!-- destinos selecionados -->
-  <div th:each="destino : ${destinosSelecionados}" class="destino-item">
-     <input type="hidden" name="destinos" th:value="${destino.id}">
-     <p>
-       <strong th:text="${destino.local}">Local do Destino</strong>
-       ( <span th:text="${destino.categoria}">Categoria</span> )
-       – 
-       <strong th:text="${'R$ ' + #numbers.formatDecimal(destino.preco,2,2)}">R$ 0,00</strong>
-     </p>
-  </div>
+	<form th:action="@{/contratacao/confirmar}" method="post">
+	  <!-- destinos selecionados -->
+	  <div th:each="destino : ${destinosSelecionados}" class="destino-item">
+	     <input type="hidden" name="destinos" th:value="${destino.id}">
+	     <p>
+	       <strong th:text="${destino.local}">Local do Destino</strong>
+	       ( <span th:text="${destino.categoria}">Categoria</span> )
+	       – 
+	       <strong th:text="${'R$ ' + #numbers.formatDecimal(destino.preco,2,2)}">R$ 0,00</strong>
+	     </p>
+	  </div>
   
-  <div class="form-group">
-    <label for="nomeCliente">Nome do Cliente:</label>
-    <input type="text"
-           id="nomeCliente"
-           name="nomeCliente"
-           class="campo-nome"
-           maxlength="50"
-           th:value="${nomeCliente}"
-           required>
-    <div th:if="${erroCliente}" class="erro" th:text="${erroCliente}"></div>
-  </div>
+	  <div class="form-group">
+	      <label for="nomeCliente">Nome do Cliente:</label>
+	      <!-- input com autocomplete via datalist -->
+	      <input type="text"
+	              id="nomeCliente"
+	              name="nomeCliente"
+	              class="campo-nome"
+	              list="clientes-list"
+	              th:value="${nomeCliente}"
+	              autocomplete="off"
+	              required>
+	       <datalist id="clientes-list"></datalist>
+	       <div th:if="${erroCliente}" class="erro" th:text="${erroCliente}"></div>
+	  </div>
+	
+	  <div class="form-group">
+	    <label for="quantidadePessoas">Quantidade de Pessoas:</label>
+	    <input type="number"
+	           id="quantidadePessoas"
+	           name="quantidadePessoas"
+	           class="campo-quantidade"
+	           min="1"
+	           max="1000"
+	           th:value="${quantidadePessoas}"
+	           required>
+	    <div th:if="${erroQuantidade}" class="erro" th:text="${erroQuantidade}"></div>
+	  </div>
+	
+	  <div class="form-group">
+	    <label for="periodoInicio">Data de Início:</label>
+	    <input type="date"
+	           id="periodoInicio"
+	           name="periodoInicio"
+	           class="campo-data"
+	           th:value="${periodoInicio}"
+	           required>
+	    <div th:if="${erroDataInicio}" class="erro" th:text="${erroDataInicio}"></div>
+	  </div>
+	
+	  <div class="form-group">
+	    <label for="periodoFim">Data de Término:</label>
+	    <input type="date"
+	           id="periodoFim"
+	           name="periodoFim"
+	           class="campo-data"
+	           th:value="${periodoFim}"
+	           required>
+	    <div th:if="${erroDataTermino}" class="erro" th:text="${erroDataTermino}"></div>
+	    <!-- Mensagem de duração -->
+	    <div th:if="${erroDuracao}" class="erro" th:text="${erroDuracao}"></div>	  
+	  </div>
+			
+	  <div class="rodape-botoes">
+	    <button type="submit" class="confirmar">Confirmar</button>
+	    <a th:href="@{/contratacao/cancelar}" class="cancelar">Cancelar</a>
+	  </div>
+	</form>
+</div>
 
-  <div class="form-group">
-    <label for="quantidadePessoas">Quantidade de Pessoas:</label>
-    <input type="number"
-           id="quantidadePessoas"
-           name="quantidadePessoas"
-           class="campo-quantidade"
-           min="1"
-           max="1000"
-           th:value="${quantidadePessoas}"
-           required>
-    <div th:if="${erroQuantidade}" class="erro" th:text="${erroQuantidade}"></div>
-  </div>
+<script th:inline="javascript">
+/*<![CDATA[*/
+  const suggestUrl = /*[[@{/clientes/sugerir}]]*/ '';
+  const input = document.getElementById('nomeCliente');
+  const list  = document.getElementById('clientes-list');
+  let timeout = null;
 
-  <div class="form-group">
-    <label for="periodoInicio">Data de Início:</label>
-    <input type="date"
-           id="periodoInicio"
-           name="periodoInicio"
-           class="campo-data"
-           th:value="${periodoInicio}"
-           required>
-    <div th:if="${erroDataInicio}" class="erro" th:text="${erroDataInicio}"></div>
-  </div>
+  input.addEventListener('input', function(){
+    clearTimeout(timeout);
+    const prefix = this.value.trim();
+    if (!prefix) {
+      list.innerHTML = '';
+      return;
+    }
+    timeout = setTimeout(() => {
+      fetch(suggestUrl + '?prefix=' + encodeURIComponent(prefix))
+        .then(res => res.ok ? res.json() : [])
+        .then(names => {
+          list.innerHTML = '';
+          names.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            list.appendChild(opt);
+          });
+        });
+    }, 300);
+  });
+/*]]>*/
+</script>
 
-  <div class="form-group">
-    <label for="periodoFim">Data de Término:</label>
-    <input type="date"
-           id="periodoFim"
-           name="periodoFim"
-           class="campo-data"
-           th:value="${periodoFim}"
-           required>
-    <div th:if="${erroDataTermino}" class="erro" th:text="${erroDataTermino}"></div>
-  </div>
-
-  <div class="rodape-botoes">
-    <button type="submit" class="confirmar">Confirmar</button>
-    <a th:href="@{/contratacao/cancelar}" class="cancelar">Cancelar</a>
-  </div>
-</form>
-
-  </div>
 </body>
 </html>

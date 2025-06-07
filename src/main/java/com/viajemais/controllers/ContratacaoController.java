@@ -1,5 +1,17 @@
 package com.viajemais.controllers;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.viajemais.entities.Contratacao;
 import com.viajemais.entities.Destino;
 import com.viajemais.entities.ItemContratacao;
@@ -7,14 +19,6 @@ import com.viajemais.services.ClienteService;
 import com.viajemais.services.ContratacaoService;
 import com.viajemais.services.DestinoService;
 import com.viajemais.services.ItemContratacaoService;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Controller
 @RequestMapping("/contratacao")
@@ -35,17 +39,20 @@ public class ContratacaoController {
         this.clienteService = clienteService;
     }
 
+    /** Recebe os IDs de destinos selecionados e exibe o formulário */
     @PostMapping("/selecionar")
     public String selecionarDestinos(@RequestParam(required = false) List<Long> destinosSelecionados,
                                      Model model) {
         if (destinosSelecionados == null || destinosSelecionados.isEmpty()) {
-            return "redirect:/"; 
+            return "redirect:/";
         }
         List<Destino> destinos = destinoService.buscarPorIds(destinosSelecionados);
         model.addAttribute("destinosSelecionados", destinos);
         return "contratacao-form";
     }
 
+    /** Processa o POST de confirmação, com validações de cliente, quantidade e datas */
+    
     @PostMapping("/confirmar")
     public String confirmarContratacao(
             @RequestParam List<Long> destinos,
@@ -56,36 +63,51 @@ public class ContratacaoController {
             Model model) {
 
         boolean hasErrors = false;
+        LocalDate hoje = LocalDate.now();
 
-        // 1) Validar cliente existe
+        // 1) Cliente existe?
         if (!clienteService.existsByNomeCliente(nomeCliente)) {
             model.addAttribute("erroCliente", "Cliente '" + nomeCliente + "' não cadastrado");
             hasErrors = true;
         }
 
-        // 2) Quantidade de pessoas <= 1000
+        // 2) Quantidade válida?
         if (quantidadePessoas < 1 || quantidadePessoas > 1000) {
             model.addAttribute("erroQuantidade", "Quantidade deve ser entre 1 e 1000");
             hasErrors = true;
         }
 
-        LocalDate hoje = LocalDate.now();
-        // 3) Data de início >= hoje
-        if (periodoInicio.isBefore(hoje)) {
+        // 3) Data de início
+        if (periodoInicio == null) {
+            model.addAttribute("erroDataInicio", "Data de início deve ser informada");
+            hasErrors = true;
+        } else if (periodoInicio.isBefore(hoje)) {
             model.addAttribute("erroDataInicio", "Data de início não pode ser anterior a hoje");
             hasErrors = true;
         }
-        // 4) Data de término >= data de início
-        if (periodoFim.isBefore(periodoInicio)) {
+
+        // 4) Data de término
+        if (periodoFim == null) {
+            model.addAttribute("erroDataTermino", "Data de término deve ser informada");
+            hasErrors = true;
+        } else if (periodoInicio != null && periodoFim.isBefore(periodoInicio)) {
             model.addAttribute("erroDataTermino", "Data de término não pode ser anterior à data de início");
             hasErrors = true;
         }
 
+        // 5) Duração ≤ 90 dias (só se não houver erros acima)
+        if (!hasErrors && periodoInicio != null && periodoFim != null) {
+            long dias = ChronoUnit.DAYS.between(periodoInicio, periodoFim);
+            if (dias > 90) {
+                model.addAttribute("erroDuracao", "A duração da viagem não pode exceder 90 dias");
+                hasErrors = true;
+            }
+        }
+
         if (hasErrors) {
-            // repor destinos selecionados para reexibir no form
+            // Repor tudo no model e voltar ao formulário
             List<Destino> destinosList = destinoService.buscarPorIds(destinos);
             model.addAttribute("destinosSelecionados", destinosList);
-            // repor valores para manter preenchido
             model.addAttribute("nomeCliente", nomeCliente);
             model.addAttribute("quantidadePessoas", quantidadePessoas);
             model.addAttribute("periodoInicio", periodoInicio);
@@ -93,20 +115,21 @@ public class ContratacaoController {
             return "contratacao-form";
         }
 
-        // --- sem erros, prossegue com criação da contratação ---
-        Contratacao contratacao = new Contratacao();
-        contratacao.setNomeCliente(nomeCliente);
-        contratacao.setPeriodoInicio(periodoInicio);
-        contratacao.setPeriodoFim(periodoFim);
-        contratacao.setQuantidadePessoas(quantidadePessoas);
-        contratacao.setData(LocalDate.now());
-        contratacao = contratacaoService.salvar(contratacao);
+        // Sem erros, cria a Contratacao
+        Contratacao c = new Contratacao();
+        c.setNomeCliente(nomeCliente);
+        c.setPeriodoInicio(periodoInicio);
+        c.setPeriodoFim(periodoFim);
+        c.setQuantidadePessoas(quantidadePessoas);
+        c.setData(LocalDate.now());
+        contratacaoService.salvar(c);
 
+        // Itens da contratação...
         for (Long id : destinos) {
             Destino dest = destinoService.buscarPorId(id);
             if (dest != null) {
                 ItemContratacao item = new ItemContratacao();
-                item.setContratacao(contratacao);
+                item.setContratacao(c);
                 item.setDestino(dest);
                 item.setPrecoUnitario(dest.getPreco());
                 itemContratacaoService.salvar(item);
@@ -114,6 +137,23 @@ public class ContratacaoController {
         }
         return "redirect:/contratacao/historico";
     }
+    
+    /** Cancela a operação e volta para a home */
+    @GetMapping("/cancelar")
+    public String cancelar() {
+        return "redirect:/";
+    }
 
-    // ... demais métodos (cancelar, histórico) permanecem iguais ...
+    /** Exibe o histórico de contratações */
+    @GetMapping("/historico")
+    public String historico(Model model) {
+        List<Contratacao> contratacoes = contratacaoService.listarTodas();
+        for (Contratacao c : contratacoes) {
+            List<ItemContratacao> itens = itemContratacaoService
+                    .buscarItensPorContratacao(c.getId());
+            c.setItens(itens);
+        }
+        model.addAttribute("contratacoes", contratacoes);
+        return "contratacao-lista";
+    }
 }

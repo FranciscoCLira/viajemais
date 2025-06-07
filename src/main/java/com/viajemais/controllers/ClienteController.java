@@ -1,30 +1,35 @@
 package com.viajemais.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.viajemais.entities.Cliente;
 import com.viajemais.services.ClienteService;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/clientes")
 public class ClienteController {
 
     private final ClienteService clienteService;
-
-    @Autowired
     public ClienteController(ClienteService clienteService) {
         this.clienteService = clienteService;
     }
-
-    // 1) LISTAR TODOS OS CLIENTES
+    
+     // 1) LISTAR TODOS OS CLIENTES
     @GetMapping
     public String listarClientes(Model model) {
         List<Cliente> lista = clienteService.listarTodos();
@@ -100,5 +105,18 @@ public class ClienteController {
         clienteService.salvar(existente);
 
         return "redirect:/clientes";
+    }
+    
+    // Somente o método de autocomplete permanece gerando JSON:
+    @GetMapping("/sugerir")
+    @ResponseBody
+    public List<String> sugerirNomes(@RequestParam("prefix") String prefix) {
+        if (prefix == null || prefix.isBlank()) {
+            return List.of();
+        }
+        return clienteService.buscarPorPrefixo(prefix)
+                             .stream()
+                             .map(Cliente::getNomeCliente)
+                             .collect(Collectors.toList());
     }
 }

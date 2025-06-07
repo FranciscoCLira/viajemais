@@ -44,6 +44,11 @@ public class ClienteService {
     public void excluir(Long id) {
         clienteRepository.deleteById(id);
     }
+    
+    /** Busca clientes cujo nome começa com prefix (case-insensitive) */
+    public List<Cliente> buscarPorPrefixo(String prefix) {
+        return clienteRepository.findByNomeClienteStartingWithIgnoreCase(prefix);
+    }
 
     public boolean existePorCodigo(Integer codCliente) {
         return clienteRepository.existsByCodCliente(codCliente);
