@@ -48,4 +48,8 @@ public class ClienteService {
     public boolean existePorCodigo(Integer codCliente) {
         return clienteRepository.existsByCodCliente(codCliente);
     }
+    
+    public boolean existsByNomeCliente(String nomeCliente) {
+        return clienteRepository.existsByNomeCliente(nomeCliente);
+    }
 }
