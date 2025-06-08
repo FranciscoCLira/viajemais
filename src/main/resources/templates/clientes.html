@@ -76,7 +76,7 @@
                                 th:attr="form=${'frm-' + cliente.id}, data-id=${cliente.id}"
                                 required
                                 class="situacao-select"
-                                onchange="onSituationChange(this)">
+                                onchange="this.form.submit()">
                             <option value="A" th:selected="${cliente.situacaoCliente == 'A'}">Ativo</option>
                             <option value="I" th:selected="${cliente.situacaoCliente == 'I'}">Inativo</option>
                             <option value="P" th:selected="${cliente.situacaoCliente == 'P'}">Pendente</option>
@@ -84,57 +84,33 @@
                         </select>
                     </td>
 
-                    <!-- Ações: exibe apenas um botão por vez, centralizado -->
                     <td class="acoes-cell">
-                        <!-- Botão “Atualizar”: oculto se situação inicial for 'C' -->
-                        <button type="submit"
-                                th:attr="form=${'frm-' + cliente.id}"
-                                class="confirmar"
-                                th:id="${'btnUpdate-' + cliente.id}"
-                                th:style="${cliente.situacaoCliente == 'C'} ? 'display:none;' : ''">
-                            Atualizar
-                        </button>
-
-                        <!-- Botão “Excluir”: oculto se situação ≠ 'C' -->
-                        <button type="button"
-                                class="cancelar"
-                                th:id="${'btnDelete-' + cliente.id}"
-                                th:style="${cliente.situacaoCliente == 'C'} ? '' : 'display:none;'"
-                                th:onclick="|if(confirm('Tem certeza que deseja excluir este cliente?')) window.location.href='@{/clientes/excluir/{id}(id=${cliente.id})}'|">
-                            Excluir
-                        </button>
-                    </td>
-                </tr>
+			  	        <!-- Exclui só quem estiver cancelado -->
+				        <button type="button"
+				          class="cancelar"
+				          th:id="${'btnDelete-' + cliente.id}"
+				          th:style="${cliente.situacaoCliente == 'C'} ? '' : 'display:none;'"
+				          th:onclick="|if(confirm('Tem certeza que deseja excluir este cliente?')) window.location.href='@{/clientes/excluir/{id}(id=${cliente.id})}'|">
+				        Excluir
+				        </button>
+	  			    </td>
+                 </tr>
             </tbody>
         </table>
 
-        <!-- Botão “Novo Cliente” duplicado no rodapé, centralizado -->
-        <div style="margin-top: 0.3rem; text-align: center;">
-            <a th:href="@{/clientes/novo}" class="confirmar">Novo Cliente</a>
-        </div>
+		<!-- Botões no rodapé, centralizados e lado a lado -->
+		<div style="margin-top: 0.3rem; text-align: center;">
+		  <a th:href="@{/clientes/novo}"
+		     class="confirmar"
+		     style="margin-right: 0.5rem;">
+		    Novo Cliente
+		  </a>
+		  <a th:href="@{/}"
+		     class="confirmar">
+		    Voltar à página inicial
+		  </a>
+		</div>
     </div>
 
-    <script>
-        function onSituationChange(selectElem) {
-            var id = selectElem.getAttribute('data-id');
-            var updateBtn = document.getElementById('btnUpdate-' + id);
-            var deleteBtn = document.getElementById('btnDelete-' + id);
-
-            if (selectElem.value === 'C') {
-                if (updateBtn) updateBtn.style.display = 'none';
-                if (deleteBtn) deleteBtn.style.display = 'inline-block';
-            } else {
-                if (updateBtn) updateBtn.style.display = 'inline-block';
-                if (deleteBtn) deleteBtn.style.display = 'none';
-            }
-        }
-
-        // Configura o estado inicial dos botões ao carregar a página
-        window.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.situacao-select').forEach(function(selectElem) {
-                onSituationChange(selectElem);
-            });
-        });
-    </script>
 </body>
 </html>
