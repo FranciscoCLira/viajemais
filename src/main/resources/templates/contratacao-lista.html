@@ -1,45 +1,78 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Histórico de Contratações</title>
-    <link rel="stylesheet" href="/css/estilo.css">
+  <meta charset="UTF-8">
+  <title>Histórico de Contratações</title>
+  <link rel="stylesheet" th:href="@{/css/estilo.css}">
 </head>
 <body>
-<div class="container">
-    <h1>Histórico de Contratações</h1>
-
-    <div th:each="contratacao : ${contratacoes}" class="contratacao-box">
-
-        <h2 th:text="'Cliente: ' + ${contratacao.nomeCliente}"></h2>
-        <p>
-            Período:
-            <span th:text="${#temporals.format(contratacao.periodoInicio, 'dd/MM/yyyy')}"></span> até
-            <span th:text="${#temporals.format(contratacao.periodoFim, 'dd/MM/yyyy')}"></span>
-        </p>
-        <p th:text="'Quantidade de Pessoas: ' + ${contratacao.quantidadePessoas}"></p>
-
-        <h3>Destinos:</h3>
-        <ul>
-            <li th:each="item : ${contratacao.itens}">
-                <span th:text="${item.destino.local}"></span> -
-                <span th:text="${T(com.viajemais.util.FormatadorUtil).formatarMoeda(item.precoUnitario)}"></span>
-            </li>
-        </ul>
-
-        <p>
-            <strong>Total da Viagem:</strong>
-            <span th:text="${T(com.viajemais.util.FormatadorUtil).formatarMoeda(contratacao.calcularSubtotal() * contratacao.quantidadePessoas)}"></span>
-        </p>
-
-        <hr/>
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h1>Histórico de Contratações</h1>
+      <a th:href="@{/}" class="confirmar">Voltar à página inicial</a>
     </div>
 
-    <div style="text-align: center; margin-top: 20px;">
-    <form action="/" method="get">
-        <button type="submit" class="voltar">Voltar à página inicial</button>
-    </form>
-</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nr. Identificação da Viagem</th>
+          <th>Nome do Cliente</th>
+          <th>Data de Confirmação da Viagem</th>
+          <th>Período da Viagem</th>
+          <th>Qt. Pessoas</th>
+          <th>Diárias</th>
+          <th>Detalhes</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="c : ${contratacoes}">
+          <td th:text="${c.id}">1</td>
+          <td th:text="${c.nomeCliente}">Fulano</td>
+          <td th:text="${#temporals.format(c.data,'dd/MM/yyyy')}">08/06/2025</td>
+          <td th:text="|${#temporals.format(c.periodoInicio,'dd/MM/yyyy')} a ${#temporals.format(c.periodoFim,'dd/MM/yyyy')}|">
+            01/06/2025 a 05/06/2025
+          </td>
+          <td th:text="${c.quantidadePessoas}">2</td>
+          <td th:text="${c.quantidadeDiarias}">4</td>
+          <td>
+            <ul>
+              <li th:each="item : ${c.itens}">
+                <span th:text="${item.destino.local}">Praia</span>
+                – 
+                <strong class="ptbr" 
+                        th:attr="data-value=${item.precoUnitario}"></strong>/diária
+                – Total: 
+                <strong class="ptbr" 
+                        th:attr="data-value=${item.valorDestino}"></strong>
+              </li>
+            </ul>
+          </td>
+          <td>
+            <strong class="ptbr" 
+                    th:attr="data-value=${c.totalViagem}"></strong>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-</div>
+    <div style="margin-top:1rem;text-align:center;">
+      <a th:href="@{/}" class="confirmar">Voltar à página inicial</a>
+    </div>
+  </div>
+
+  <script>
+    // formata todos os .ptbr usando toLocaleString('pt-BR')
+    document.querySelectorAll('.ptbr').forEach(el => {
+      const raw = el.getAttribute('data-value');
+      const num = parseFloat(raw);
+      if (!isNaN(num)) {
+        el.textContent = num.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+    });
+  </script>
 </body>
 </html>

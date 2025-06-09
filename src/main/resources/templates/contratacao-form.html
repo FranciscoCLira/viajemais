@@ -46,15 +46,14 @@
 	<form th:action="@{/contratacao/confirmar}" method="post">
 	  <!-- destinos selecionados -->
 	  <div th:each="destino : ${destinosSelecionados}" class="destino-item">
-	     <input type="hidden" name="destinos" th:value="${destino.id}">
-	     <p>
-	       <strong th:text="${destino.local}">Local do Destino</strong>
-	       ( <span th:text="${destino.categoria}">Categoria</span> )
-	       – 
-	       <strong th:text="${'R$ ' + #numbers.formatDecimal(destino.preco,2,2)}">R$ 0,00</strong>
-	     </p>
+		  <input type="hidden" name="destinos" th:value="${destino.id}">
+		  <p>
+			  <strong th:text="${destino.local}">Praia</strong>
+			  – R$ <span th:text="${destino.preco}" class="ptbr">100.00</span>
+			  <small>por diária</small>
+		  </p>
 	  </div>
-  
+	    
 	  <div class="form-group">
 	      <label for="nomeCliente">Nome do Cliente:</label>
 	      <!-- input com autocomplete via datalist -->
@@ -143,6 +142,20 @@
   });
 /*]]>*/
 </script>
+
+<script>
+  // formata todo elemento com classe `.ptbr` como número brasileiro
+  document.querySelectorAll('.ptbr').forEach(el => {
+    let num = parseFloat(el.textContent.replace(/\./g,'').replace(',','.'));
+    if (!isNaN(num)) {
+      el.textContent = num.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+  });
+</script>
+
 
 </body>
 </html>

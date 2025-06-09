@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 
 @Entity
 public class ItemContratacao {
@@ -20,7 +21,9 @@ public class ItemContratacao {
     
     @Column(nullable = false)
     private Double precoUnitario;
-
+    
+    @Transient 
+    private double valorDestino;
     
     // Getters e setters
     
@@ -51,4 +54,12 @@ public class ItemContratacao {
 	public void setPrecoUnitario(Double precoUnitario) {
 		this.precoUnitario = precoUnitario;
 	}
+	
+    public double getValorDestino() {
+        return valorDestino;
+    }
+    public void setValorDestino(double valorDestino) {
+        this.valorDestino = valorDestino;
+    }
+
 }

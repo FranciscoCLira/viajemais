@@ -20,6 +20,13 @@ public class Contratacao {
     private LocalDate periodoInicio;
 
     private LocalDate periodoFim;
+    
+
+    @Transient
+    private long quantidadeDiarias;
+
+    @Transient
+    private double totalViagem;
 
     @OneToMany(mappedBy = "contratacao", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ItemContratacao> itens;
@@ -93,6 +100,21 @@ public class Contratacao {
     public void setPeriodoFim(LocalDate periodoFim) {
         this.periodoFim = periodoFim;
     }
+    
+    public long getQuantidadeDiarias() {
+        return quantidadeDiarias;
+    }
+    public void setQuantidadeDiarias(long quantidadeDiarias) {
+        this.quantidadeDiarias = quantidadeDiarias;
+    }
+
+    public double getTotalViagem() {
+        return totalViagem;
+    }
+    public void setTotalViagem(double totalViagem) {
+        this.totalViagem = totalViagem;
+    }
+    
 
     public List<ItemContratacao> getItens() {
         return itens;
