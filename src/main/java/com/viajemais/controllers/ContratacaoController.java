@@ -150,17 +150,15 @@ public class ContratacaoController {
         List<Contratacao> contratacoes = contratacaoService.listarTodas();
 
         for (Contratacao c : contratacoes) {
-            // diferença de dias entre início e fim
             long diff = ChronoUnit.DAYS.between(c.getPeriodoInicio(), c.getPeriodoFim());
-            // se diff == 0 → 1 diária; caso contrário, diff diárias
-            long diarias = (diff == 0) ? 1 : diff;
+            long diarias = diff == 0 ? 1 : diff;
             c.setQuantidadeDiarias(diarias);
 
-            // calcular valor de cada destino e total
             List<ItemContratacao> itens = itemContratacaoService.buscarItensPorContratacao(c.getId());
             double total = 0;
             for (ItemContratacao item : itens) {
-                double valor = item.getPrecoUnitario() * diarias;
+                // Aqui incluímos a Qt. Pessoas no cálculo:
+                double valor = item.getPrecoUnitario() * diarias * c.getQuantidadePessoas();
                 item.setValorDestino(valor);
                 total += valor;
             }

@@ -18,9 +18,10 @@ public class Cliente {
     @NotBlank(message = "Nome é obrigatório")
     @Size(max = 50, message = "Máximo de 50 caracteres")
     @Pattern(
-        regexp = "^(?=.*[A-Za-z])[A-Za-z0-9 ]+$",
-        message = "Use apenas letras, números e espaços, com ao menos uma letra"
+    regexp = "^(?=.*\\p{L})[\\p{L}\\d ]+$",
+    message = "Só letras (com acentos), números e espaços, e deve conter ao menos uma letra"
     )
+    
     @Column(name = "nome_cliente", unique = true, nullable = false, length = 50)
     private String nomeCliente;
 
