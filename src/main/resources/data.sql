@@ -12,8 +12,12 @@ INSERT INTO destino (local, categoria, imagem_url, preco) VALUES ('Fortaleza', '
 
 INSERT INTO destino (local, categoria, imagem_url, preco) VALUES ('Ibirapuera', 'Parques', 'https://grupospimovel.s3.amazonaws.com/Imagens/Noticias/Sistema/mercado-imobiliario/Parque_Ibirapuera.jpg', 1980.00);
 
+INSERT INTO destino (local, categoria, imagem_url, preco) VALUES ('Fortaleza 2', 'Cidades', 'https://example.com/Fortaleza.jpg', 3980.05);
+
 
 INSERT INTO CLIENTE (COD_CLIENTE, DATA_CADASTRO, NOME_CLIENTE, SITUACAO_CLIENTE) VALUES ('1', DATE '2025-06-01', 'Francisco Casemiro Lira', 'A');    
 INSERT INTO CLIENTE (COD_CLIENTE, DATA_CADASTRO, NOME_CLIENTE, SITUACAO_CLIENTE) VALUES ('2', DATE '2025-06-02', 'Frederico da Silva', 'A');         
 INSERT INTO CLIENTE (COD_CLIENTE, DATA_CADASTRO, NOME_CLIENTE, SITUACAO_CLIENTE) VALUES ('3', DATE '2025-06-03', 'Gloria de Menezes mais um', 'A');  
 INSERT INTO CLIENTE (COD_CLIENTE, DATA_CADASTRO, NOME_CLIENTE, SITUACAO_CLIENTE) VALUES ('4', DATE '2025-06-04', 'Abelarto Chacrinha', 'A');
+
+INSERT INTO CLIENTE (COD_CLIENTE, DATA_CADASTRO, NOME_CLIENTE, SITUACAO_CLIENTE) VALUES ('6', DATE '2025-06-10', 'Novo Cliente 6', 'I');
