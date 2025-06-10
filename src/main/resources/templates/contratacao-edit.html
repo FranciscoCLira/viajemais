@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Contratação</title>
+  <link rel="stylesheet" th:href="@{/css/estilo.css}">
+  <style>
+    .campo-quantidade { width: 10ch !important; }
+    .campo-data       { width: 18ch !important; }
+    .form-group       { margin-bottom: 0.75rem; }
+    .form-group label { display: block; margin-bottom: 0.25rem; font-weight: bold; }
+    .form-group input { padding: 0.3rem; font-size: 0.9rem; box-sizing: border-box; }
+    .rodape-botoes    { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+    .rodape-botoes .confirmar,
+    .rodape-botoes .cancelar {
+      padding: 0.3rem 0.6rem; font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Editar Contratação</h1>
+
+    <!-- Cliente e destinos somente leitura -->
+    <p><strong>Cliente:</strong> <span th:text="${contratacao.nomeCliente}"></span></p>
+    <p><strong>Destinos:</strong></p>
+    <ul>
+      <li th:each="item : ${contratacao.itens}"
+          th:text="${item.destino.local}">Destino X</li>
+    </ul>
+
+    <form th:action="@{/contratacao/editar/salvar}"
+          th:object="${contratacao}"
+          method="post">
+      <input type="hidden" th:field="*{id}" />
+      <input type="hidden" th:field="*{nomeCliente}" />
+
+      <!-- Quantidade de Pessoas -->
+      <div class="form-group">
+        <label for="quantidadePessoas">Qt. Pessoas:</label>
+        <input type="number"
+               id="quantidadePessoas"
+               th:field="*{quantidadePessoas}"
+               class="campo-quantidade"
+               min="1" max="1000"
+               required />
+        <div th:if="${#fields.hasErrors('quantidadePessoas')}"
+             th:errors="*{quantidadePessoas}"
+             class="erro"></div>
+      </div>
+
+      <!-- Data de Início -->
+      <div class="form-group">
+        <label for="periodoInicio">Data de Início:</label>
+        <input type="date"
+               id="periodoInicio"
+               th:field="*{periodoInicio}"
+               class="campo-data"
+               required />
+        <div th:if="${#fields.hasErrors('periodoInicio')}"
+             th:errors="*{periodoInicio}"
+             class="erro"></div>
+      </div>
+
+      <!-- Data de Término -->
+      <div class="form-group">
+        <label for="periodoFim">Data de Término:</label>
+        <input type="date"
+               id="periodoFim"
+               th:field="*{periodoFim}"
+               class="campo-data"
+               required />
+        <div th:if="${#fields.hasErrors('periodoFim')}"
+             th:errors="*{periodoFim}"
+             class="erro"></div>
+      </div>
+
+	  <div class="rodape-botoes">
+		  <!-- Sempre visível (ou deixe o th:if se ainda quiser condicionar) -->
+		  <button type="submit" class="confirmar">Salvar</button>
+		
+		  <!-- Cancelar segue ao lado -->
+		  <a th:href="@{/contratacao/historico}" class="cancelar">Cancelar</a>
+		
+		  <!-- Excluir, apenas se permitido -->
+		  <a th:href="@{/contratacao/excluir/{id}(id=${contratacao.id})}"
+		     class="cancelar"
+		     th:if="${permitirExclusao}"
+		     onclick="return confirm('Confirma exclusão?');">
+		    Excluir
+		  </a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

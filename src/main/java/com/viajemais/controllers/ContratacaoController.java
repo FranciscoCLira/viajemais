@@ -1,16 +1,25 @@
 package com.viajemais.controllers;
 
+import java.beans.PropertyEditorSupport;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.viajemais.entities.Contratacao;
 import com.viajemais.entities.Destino;
@@ -19,6 +28,8 @@ import com.viajemais.services.ClienteService;
 import com.viajemais.services.ContratacaoService;
 import com.viajemais.services.DestinoService;
 import com.viajemais.services.ItemContratacaoService;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/contratacao")
@@ -169,4 +180,109 @@ public class ContratacaoController {
         model.addAttribute("contratacoes", contratacoes);
         return "contratacao-lista";
     }
+
+    @GetMapping("/novo")
+    public String novoContratacao(Model model) {
+        model.addAttribute("contratacao", new Contratacao());
+        model.addAttribute("editar", false);
+        return "contratacao-form";
+    }    
+    
+    /** Exibe o formulário de edição de período e quantidade */
+    
+    @GetMapping("/editar/{id}")
+    public String editarContratacao(@PathVariable Long id, Model model) {
+        Contratacao c = contratacaoService.buscarPorId(id)
+            .orElseThrow(() -> new IllegalArgumentException("Não encontrado: " + id));
+        model.addAttribute("contratacao", c);
+        model.addAttribute("editar", true);
+
+        return "contratacao-edit";
+    }
+
+    /** Salva alterações de período e quantidade */
+    @PostMapping("/editar/salvar")
+    public String salvarEdicao(
+            @Valid @ModelAttribute("contratacao") Contratacao contratacao,
+            BindingResult binding,
+            Model model) {
+
+        LocalDate hoje = LocalDate.now();
+
+        if (contratacao.getPeriodoInicio() == null ||
+            contratacao.getPeriodoInicio().isBefore(hoje)) {
+            binding.rejectValue("periodoInicio", "error.periodoInicio",
+                "Data de início deve ser igual ou maior que hoje");
+        }
+        if (contratacao.getPeriodoFim() == null ||
+            contratacao.getPeriodoFim().isBefore(contratacao.getPeriodoInicio())) {
+            binding.rejectValue("periodoFim", "error.periodoFim",
+                "Data de término deve ser igual ou maior que a data de início");
+        }
+        // ... valida Qt. Pessoas ...
+
+        if (binding.hasErrors()) {
+            model.addAttribute("permitirAlteracao", true);
+            model.addAttribute("permitirExclusao", true);
+            return "contratacao-edit";
+        }
+
+        // Carrega existente e atualiza só o que pode mudar
+        Contratacao existente = contratacaoService.buscarPorId(contratacao.getId())
+            .orElseThrow(() -> new IllegalArgumentException("Não encontrado: " + contratacao.getId()));
+
+        existente.setPeriodoInicio(contratacao.getPeriodoInicio());
+        existente.setPeriodoFim(contratacao.getPeriodoFim());
+        existente.setQuantidadePessoas(contratacao.getQuantidadePessoas());
+        // nomeCliente, dataCadastro e itens permanecem inalterados
+
+        contratacaoService.salvar(existente);
+        return "redirect:/contratacao/historico";
+    }
+
+    /** Exclui a contratação, só se permitida (datas ≥ hoje) */
+    @GetMapping("/excluir/{id}")
+    public String excluirContratacao(@PathVariable Long id,
+                                     RedirectAttributes ra) {
+		Optional<Contratacao> opt = contratacaoService.buscarPorId(id);
+		if (opt.isPresent()) {
+		Contratacao c = opt.get();
+		LocalDate hoje = LocalDate.now();
+		if (!c.getPeriodoInicio().isBefore(hoje) &&
+		!c.getPeriodoFim().isBefore(hoje)) {
+		contratacaoService.excluir(id);
+		} else {
+		ra.addFlashAttribute("erroExclusao",
+		"Só é possível excluir viagens com período futuro ou atual");
+		}
+		}
+		return "redirect:/contratacao/historico";
+	}
+    
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(LocalDate.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text == null || text.isBlank()) {
+                    setValue(null);
+                    return;
+                }
+                // Se vier no formato ISO (yyyy-MM-dd), usa parse padrão
+                if (text.contains("-")) {
+                    setValue(LocalDate.parse(text));
+                } else {
+                    // Senão, assume dd/MM/yyyy
+                    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                    setValue(LocalDate.parse(text, fmt));
+                }
+            }
+            @Override
+            public String getAsText() {
+                LocalDate ld = (LocalDate) getValue();
+                return (ld == null ? "" : ld.toString()); // ISO, para datepicker
+            }
+        });
+    }
+
 }

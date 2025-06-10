@@ -7,6 +7,7 @@
 </head>
 <body>
   <div class="container">
+    <!-- Cabeçalho -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
       <h1>Histórico de Contratações</h1>
       <a th:href="@{/}" class="confirmar">Voltar à página inicial</a>
@@ -15,14 +16,15 @@
     <table>
       <thead>
         <tr>
-          <th>Nr. Identificação da Viagem</th>
-          <th>Nome do Cliente</th>
-          <th>Data de Confirmação da Viagem</th>
-          <th>Período da Viagem</th>
+          <th>Nr. Ident.</th>
+          <th>Cliente</th>
+          <th>Data Confirmação</th>
+          <th>Período</th>
           <th>Qt. Pessoas</th>
           <th>Diárias</th>
           <th>Detalhes</th>
           <th>Total</th>
+          <th>Ações</th> <!-- cabeçalho de ações -->
         </tr>
       </thead>
       <tbody>
@@ -30,7 +32,8 @@
           <td th:text="${c.id}">1</td>
           <td th:text="${c.nomeCliente}">Fulano</td>
           <td th:text="${#temporals.format(c.data,'dd/MM/yyyy')}">08/06/2025</td>
-          <td th:text="|${#temporals.format(c.periodoInicio,'dd/MM/yyyy')} a ${#temporals.format(c.periodoFim,'dd/MM/yyyy')}|">
+          <td th:text="|${#temporals.format(c.periodoInicio,'dd/MM/yyyy')} a 
+                        ${#temporals.format(c.periodoFim,'dd/MM/yyyy')}|">
             01/06/2025 a 05/06/2025
           </td>
           <td th:text="${c.quantidadePessoas}">2</td>
@@ -38,31 +41,38 @@
           <td>
             <ul>
               <li th:each="item : ${c.itens}">
-                <span th:text="${item.destino.local}">Praia</span>
-                – 
-                <strong class="ptbr" 
-                        th:attr="data-value=${item.precoUnitario}"></strong>/diária
-                – Tot: 
-                <strong class="ptbr" 
-                        th:attr="data-value=${item.valorDestino}"></strong>
+                <span th:text="${item.destino.local}">Praia</span> Diária: 
+                  <strong class="ptbr" th:attr="data-value=${item.precoUnitario}"></strong>
+                 Tot: 
+                  <strong class="ptbr" th:attr="data-value=${item.valorDestino}"></strong>
               </li>
             </ul>
           </td>
           <td>
-            <strong class="ptbr" 
-                    th:attr="data-value=${c.totalViagem}"></strong>
+            <strong class="ptbr" th:attr="data-value=${c.totalViagem}"></strong>
+          </td>
+          <td class="acoes-cell">
+            <a th:if="${c.periodoInicio.compareTo(T(java.time.LocalDate).now()) >= 0 
+                      and c.periodoFim.compareTo(T(java.time.LocalDate).now()) >= 0}"
+               th:href="@{/contratacao/editar/{id}(id=${c.id})}"
+               class="confirmar">Editar</a>
+            <a th:if="${c.periodoInicio.compareTo(T(java.time.LocalDate).now()) >= 0 
+                      and c.periodoFim.compareTo(T(java.time.LocalDate).now()) >= 0}"
+               th:href="@{/contratacao/excluir/{id}(id=${c.id})}"
+               class="cancelar"
+               onclick="return confirm('Confirma exclusão?');">Excluir</a>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div style="margin-top:1rem;text-align:center;">
+    <div style="text-align:center;margin-top:1rem;">
       <a th:href="@{/}" class="confirmar">Voltar à página inicial</a>
     </div>
   </div>
 
   <script>
-    // formata todos os .ptbr usando toLocaleString('pt-BR')
+    // Formata elementos .ptbr em pt-BR (milhar '.', decimal ',')
     document.querySelectorAll('.ptbr').forEach(el => {
       const raw = el.getAttribute('data-value');
       const num = parseFloat(raw);
