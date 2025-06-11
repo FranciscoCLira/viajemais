@@ -21,6 +21,10 @@
   <div class="container">
     <h1>Editar Contratação</h1>
 
+    <p><strong>Nr. Identificação da Viagem:</strong> 
+       <span th:text="${contratacao.id}"></span>
+    </p>
+
     <!-- Cliente e destinos somente leitura -->
     <p><strong>Cliente:</strong> <span th:text="${contratacao.nomeCliente}"></span></p>
     <p><strong>Destinos:</strong></p>

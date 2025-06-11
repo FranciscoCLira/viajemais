@@ -48,9 +48,9 @@
 	  <div th:each="destino : ${destinosSelecionados}" class="destino-item">
 		  <input type="hidden" name="destinos" th:value="${destino.id}">
 		  <p>
-			  <strong th:text="${destino.local}">Praia</strong>
-			  – R$ <span th:text="${destino.preco}" class="ptbr">100.00</span>
-			  <small>por diária</small>
+			 <strong th:text="${destino.local}">Praia</strong> –
+			 R$ <span class="ptbr" th:attr="data-value=${destino.preco}"></span>
+			 <small>por diária</small>
 		  </p>
 	  </div>
 	    
@@ -146,7 +146,8 @@
 <script>
   // formata todo elemento com classe `.ptbr` como número brasileiro
   document.querySelectorAll('.ptbr').forEach(el => {
-    let num = parseFloat(el.textContent.replace(/\./g,'').replace(',','.'));
+    const raw = el.getAttribute('data-value');
+    const num = parseFloat(raw);
     if (!isNaN(num)) {
       el.textContent = num.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
