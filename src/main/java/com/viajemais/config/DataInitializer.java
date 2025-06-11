@@ -25,6 +25,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+    	
         if (reloadData) {
             // fecha conexões e deleta o arquivo em disco
             Files.deleteIfExists(Paths.get("data/viajemais-db.mv.db"));
@@ -38,10 +39,27 @@ public class DataInitializer implements CommandLineRunner {
         Integer cntCli  = jdbc.queryForObject("SELECT COUNT(*) FROM CLIENTE", Integer.class);
         Integer cntCon  = jdbc.queryForObject("SELECT COUNT(*) FROM CONTRATACAO", Integer.class);
         Integer cntItem = jdbc.queryForObject("SELECT COUNT(*) FROM ITEM_CONTRATACAO", Integer.class);
-
-        boolean empty = (cntDest == 0 && cntCli == 0 && cntCon == 0 && cntItem == 0);
-        if (reloadData || empty) {
-        	
+    	
+        // Todas as tabela com dados impede o reload 
+        // boolean empty = (cntDest == 0 && cntCli == 0 && cntCon == 0 && cntItem == 0);
+        // if (reloadData || empty) {
+        
+        // Qualquer tabela com dados impede o reload 
+        boolean anyData = (cntDest>0) || (cntCli>0) || (cntCon>0) || (cntItem>0);
+    	
+    	// Log o flag e counts - ver console ao subir a app
+    	System.out.printf("reloadData=%b, counts: DEST=%d, CLI=%d, CON=%d, ITEM=%d%n",
+    		    reloadData, cntDest, cntCli, cntCon, cntItem);
+    	System.out.println("reloadData=" + reloadData + ", anyData=" + anyData);
+        
+    	// só recarrega se explicitamente pediu (reloadData==true)
+    	// e não há NENHUMA tabela com dados (anyData==false)
+        if (reloadData || !anyData) {
+        	System.out.println("**** recarregando a basa de dados ********");
+        	System.out.println("reloadData=" + reloadData + ", anyData=" + anyData);
+  
+        	// reload só quando for a primeira carga OU reloadData=true
+        
         	// 1) Limpa todas as tabelas na ordem de dependência
             jdbc.execute("DELETE FROM ITEM_CONTRATACAO");
             jdbc.execute("DELETE FROM CONTRATACAO");
@@ -70,6 +88,7 @@ public class DataInitializer implements CommandLineRunner {
 
             // 5) Sincroniza cod_cliente = id
             jdbc.execute("UPDATE CLIENTE SET cod_cliente = id");
-        }
+        } else
+    	System.out.println("**** não recarregou a basa de dados *********");
     }
 }
