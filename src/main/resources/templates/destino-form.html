@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${editar} ? 'Editar Destino' : 'Novo Destino'">Novo Destino</title>
+  <link rel="stylesheet" th:href="@{/css/estilo.css}">
+  
+  <style>
+  /* campo de preço: até 15 caracteres (incluindo separadores) */
+  .campo-preco {
+    width: 15ch !important;
+  }
+  /* campo de URL do destino: até 55 caracteres */
+  .campo-url {
+    width: 55ch !important;
+  }
+  
+  .campo-url {
+  width: 100ch !important;
+  }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <h1 th:text="${editar} ? 'Editar Destino' : 'Novo Destino'">Novo Destino</h1>
+    <form th:action="@{${editar} ? '/destinos/editar' : '/destinos'}"
+          th:object="${destino}"
+          method="post">
+      <input type="hidden" th:if="${editar}" th:field="*{id}" />
+
+      <div class="form-group">
+        <label for="local">Local:</label>
+        <input type="text" id="local" th:field="*{local}" required />
+        <div th:if="${#fields.hasErrors('local')}" th:errors="*{local}" class="erro"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="categoria">Categoria:</label>
+        <input type="text" id="categoria" th:field="*{categoria}" required />
+        <div th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}" class="erro"></div>
+      </div>
+
+	  <div class="form-group">
+		  <label for="preco">Preço (R$):</label>
+		  <input type="text"
+		         id="preco"
+		         name="preco"
+		         class="campo-preco ptbr"
+		         th:attr="data-value=${destino.preco}"
+		         placeholder="0,00"
+		         required />
+		  <div th:if="${#fields.hasErrors('preco')}"
+		       th:errors="*{preco}" class="erro"></div>
+	  </div>
+
+      <div class="form-group">
+		  <label for="imagemUrl">URL Imagem:</label>
+		  <input type="url"
+		         id="imagemUrl"
+		         th:field="*{imagemUrl}"
+		         class="campo-url"
+		         placeholder="https://exemplo.com/imagem.jpg"
+		         required />
+		  <div th:if="${#fields.hasErrors('imagemUrl')}"
+		       th:errors="*{imagemUrl}" class="erro"></div>
+	  </div>
+
+      <div class="rodape-botoes">
+        <button type="submit" class="confirmar"
+                th:text="${editar} ? 'Salvar' : 'Criar'">Criar</button>
+        <a th:href="@{/destinos}" class="cancelar">Cancelar</a>
+      </div>
+    </form>
+  </div>
+
+<script>
+  document.querySelectorAll('.ptbr').forEach(el => {
+    const raw = el.getAttribute('data-value');
+    const num = parseFloat(raw);
+    if (!isNaN(num)) {
+      el.value = num.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+    // Quando o usuário sair do campo, reformatar sempre com 2 decimais
+    el.addEventListener('blur', () => {
+      const v = el.value.replace(/\./g,'').replace(',','.');
+      const n = parseFloat(v);
+      if (!isNaN(n)) {
+        el.value = n.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+    });
+  });
+</script>
+
+  
+</body>
+</html>

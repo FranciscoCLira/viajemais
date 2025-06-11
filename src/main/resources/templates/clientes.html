@@ -34,12 +34,23 @@
 </head>
 <body>
     <div class="container">
-        <!-- Cabeçalho com título e botão “Novo Cliente” no canto direito -->
-        <div class="header-row" style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="margin: 0;">Clientes Cadastrados</h1>
-            <!-- Botão “Novo Cliente” ajustado para usar apenas a classe confirmar, igual ao rodapé -->
-            <a th:href="@{/clientes/novo}" class="confirmar">Novo Cliente</a>
-        </div>
+		<!-- Cabeçalho com título e botões alinhados -->
+		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+		  <h1 style="margin: 0;">Clientes Cadastrados</h1>
+		  <div>
+		    <!-- Botão Novo Cliente (verde) com margem menor -->
+		    <a th:href="@{/clientes/novo}"
+		       class="confirmar"
+		       style="margin-right: 0.5rem;">
+		      Novo Cliente
+		    </a>
+		    <!-- Botão Voltar ao Início (azul) usa mesma classe do rodapé -->
+		    <a th:href="@{/}"
+		       class="cancelar">
+		      Voltar à página inicial
+		    </a>
+		  </div>
+		</div> 
 
         <table>
             <thead>

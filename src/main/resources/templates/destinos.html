@@ -2,20 +2,53 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Todos os Destinos Disponíveis</title>
+    <title>Destinos</title>
     <link rel="stylesheet" th:href="@{/css/estilo.css}">
+	<style>
+	    /* reduz altura de cada item */
+	    .destino {
+	      padding: 0.5rem 1rem;
+	      margin-bottom: 0.5rem;
+	      position: relative;
+	    }
+	    /* posiciona botões de ação no topo direito do item */
+	    .destino .acoes-item {
+	      position: absolute;
+	      top: 0.5rem;
+	      right: 1rem;
+	      display: flex;
+	      gap: 0.5rem;
+	    }
+	</style>    
 </head>
 <body>
 <div class="container">
-    <!-- Cabeçalho com título e botão “Voltar à página inicial” no canto superior direito -->
-    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h1 id="top">Todos os Destinos Disponíveis</h1>
-        <form action="/" method="get" style="margin: 0;">
-            <button type="submit" class="voltar">Voltar à página inicial</button>
-        </form>
+    <!-- Cabeçalho com título à esquerda e botões à direita -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h1 style="margin: 0;">Destinos Disponíveis</h1>
+      <div>
+        <a th:href="@{/destinos/novo}"
+           class="confirmar"
+           style="margin-right: 0.5rem;">
+          Novo Destino
+        </a>
+        <!-- Mesma classe do rodapé, garante cor azul idêntica -->
+        <button type="button"
+                class="voltar"
+                onclick="window.location.href='/'">
+            Voltar à página inicial
+        </button>
+      </div>
     </div>
-
+    
+    <!-- Lista de destinos -->
     <div th:each="destino : ${destinos}" class="destino">
+        <!-- botões de ação no topo do item -->
+        <div class="acoes-item">
+          <a th:href="@{/destinos/editar/{id}(id=${destino.id})}" class="confirmar" style="padding:0.2rem 0.5rem;font-size:0.8rem;">Editar</a>
+          <a th:href="@{/destinos/excluir/{id}(id=${destino.id})}" class="cancelar" style="padding:0.2rem 0.5rem;font-size:0.8rem;"
+             onclick="return confirm('Confirma exclusão?');">Excluir</a>
+        </div>
         <h2 th:text="${destino.local}">Local</h2>
         <p>
             <strong>Categoria:</strong>
@@ -33,13 +66,15 @@
     <div style="text-align: center; margin-top: 20px;">
         <button type="button"
                 class="voltar"
+                style="margin-right: 0.5rem;"
                 onclick="window.scrollTo(0,0);">
             Voltar ao início desta página
         </button>
-
-        <form action="/" method="get" style="display: inline-block; margin-right: 0.5rem;">
-            <button type="submit" class="voltar">Voltar à página inicial</button>
-        </form>
+        <button type="button"
+                class="voltar"
+                onclick="window.location.href='/'">
+            Voltar à página inicial
+        </button>
     </div>
 </div>
 

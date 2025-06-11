@@ -1,6 +1,0 @@
-#FileLock
-#Tue Jun 10 20:23:37 BRT 2025
-hostName=192.168.0.58
-id=1975c28099dacc9df2977303a252af5a612d01bf5e0
-method=file
-server=192.168.0.58\:53610

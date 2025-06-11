@@ -8,5 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ItemContratacaoRepository extends JpaRepository<ItemContratacao, Long> {
 	List<ItemContratacao> findByContratacaoId(Long contratacaoId);
+	
+    void deleteByContratacaoId(Long contratacaoId);
+    void deleteByDestinoId(Long destinoId);
 
 }
