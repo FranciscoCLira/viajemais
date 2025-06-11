@@ -2,57 +2,68 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title th:text="${editar} ? 'Editar Destino' : 'Novo Destino'">Novo Destino</title>
+  <title>Editar Destino</title>
   <link rel="stylesheet" th:href="@{/css/estilo.css}">
   
   <style>
+  .campo-local {
+    width: 100ch !important;
+  }
+  .campo-categoria {
+    width: 50ch !important;
+  }
+  
   /* campo de preço: até 15 caracteres (incluindo separadores) */
   .campo-preco {
-    width: 15ch !important;
+    width: 15ch !important; /* comporta até “999.999.999.999,99” */
   }
   /* campo de URL do destino: até 55 caracteres */
   .campo-url {
-    width: 55ch !important;
-  }
-  
-  .campo-url {
-  width: 100ch !important;
+    width: 100ch !important;
   }
   </style>
 
 </head>
 <body>
   <div class="container">
-    <h1 th:text="${editar} ? 'Editar Destino' : 'Novo Destino'">Novo Destino</h1>
-    <form th:action="@{${editar} ? '/destinos/editar' : '/destinos'}"
-          th:object="${destino}"
-          method="post">
+      <h1 th:text="${editar} ? 'Editar Destino' : 'Novo Destino'">Novo Destino</h1>
+
+      <form th:action="${editar} ? @{/destinos/editar} : @{/destinos}"
+            th:object="${destino}"
+            method="post">
+          
       <input type="hidden" th:if="${editar}" th:field="*{id}" />
 
       <div class="form-group">
         <label for="local">Local:</label>
-        <input type="text" id="local" th:field="*{local}" required />
+        <input type="text" id="local" th:field="*{local}" class="campo-local" required />
         <div th:if="${#fields.hasErrors('local')}" th:errors="*{local}" class="erro"></div>
       </div>
 
       <div class="form-group">
         <label for="categoria">Categoria:</label>
-        <input type="text" id="categoria" th:field="*{categoria}" required />
+        <input type="text" id="categoria" th:field="*{categoria}" class="campo-categoria" required />
         <div th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}" class="erro"></div>
       </div>
 
 	  <div class="form-group">
 		  <label for="preco">Preço (R$):</label>
-		  <input type="text"
-		         id="preco"
-		         name="preco"
-		         class="campo-preco ptbr"
-		         th:attr="data-value=${destino.preco}"
-		         placeholder="0,00"
-		         required />
-		  <div th:if="${#fields.hasErrors('preco')}"
-		       th:errors="*{preco}" class="erro"></div>
-	  </div>
+		  <!--
+		    - type="text" para permitir formatacao
+		    - name="preco" para binding no @ModelAttribute
+		    - data-value armazena o valor bruto (ex: 6001.0)
+		    - class="ptbr" para o script formatar em pt-BR
+		    - class="campo-preco" para limitar o tamanho visual
+		  -->
+			  <input type="text"
+			         id="preco"
+			         th:field="*{preco}"
+			         class="campo-preco ptbr"
+			         required />
+			  <div th:if="${#fields.hasErrors('preco')}"
+			       th:errors="*{preco}"
+			       class="erro"></div>
+			</div>
 
       <div class="form-group">
 		  <label for="imagemUrl">URL Imagem:</label>
@@ -76,7 +87,16 @@
 
 <script>
   document.querySelectorAll('.ptbr').forEach(el => {
-    const raw = el.getAttribute('data-value');
+    let raw = el.value.trim();
+
+    // Se o usuário ou o binding usou vírgula decimal (pt-BR)
+    if (raw.includes(',')) {
+      // remove apenas os pontos de milhares
+      raw = raw.replace(/\.(?=\d{3},)/g,'')
+               .replace(',','.');
+    }
+    // Caso contrário raw já está em formato "5000.0", deixa o ponto como decimal
+
     const num = parseFloat(raw);
     if (!isNaN(num)) {
       el.value = num.toLocaleString('pt-BR', {
@@ -84,20 +104,22 @@
         maximumFractionDigits: 2
       });
     }
-    // Quando o usuário sair do campo, reformatar sempre com 2 decimais
+
     el.addEventListener('blur', () => {
-      const v = el.value.replace(/\./g,'').replace(',','.');
+      let v = el.value.trim();
+      if (v.includes(',')) {
+        v = v.replace(/\.(?=\d{3},)/g,'').replace(',','.');
+      }
       const n = parseFloat(v);
       if (!isNaN(n)) {
-        el.value = n.toLocaleString('pt-BR', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
+        el.value = n.toLocaleString('pt-BR',{
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
         });
       }
     });
   });
 </script>
-
   
 </body>
 </html>

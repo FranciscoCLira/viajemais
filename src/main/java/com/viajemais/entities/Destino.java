@@ -1,6 +1,8 @@
 package com.viajemais.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Destino {
@@ -14,7 +16,12 @@ public class Destino {
     @Column(name = "imagem_url")
     private String imagemUrl;
 
-    private double preco;
+    // Trocado de primitive double para wrapper Double
+    // Double preco (em vez de double) permite que bean validation capture null
+    
+    @NotNull(message = "Preço é obrigatório")
+    @DecimalMin(value = "1.00", inclusive = true, message = "Preço mínimo é R$ 1,00")
+    private Double preco;
 
     // Getters e Setters 
 

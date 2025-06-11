@@ -2,13 +2,17 @@ package com.viajemais.controllers;
 
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
+
+import java.beans.PropertyEditorSupport;
 
 import jakarta.validation.Valid;
 
@@ -41,26 +45,36 @@ public class DestinoController {
     // novo
     @GetMapping("/novo")
     public String novo(Model model) {
-        model.addAttribute("destino", new Destino());
+        Destino d = new Destino();
+        d.setPreco(0.0);               // evita null no campo preco
+        model.addAttribute("destino", d);
         model.addAttribute("editar", false);
         return "destino-form";
     }
+    
     @PostMapping
-    public String criar(@Valid @ModelAttribute Destino destino, BindingResult br) {
-        if (br.hasErrors()) return "destino-form";
+    public String criar(
+            @Valid @ModelAttribute("destino") Destino destino,
+            BindingResult binding,
+            Model model) {
+
+        if (binding.hasErrors()) {
+            model.addAttribute("editar", false);
+            return "destino-form";
+        }
+
         destinoService.salvar(destino);
         return "redirect:/destinos";
     }
 
-    // editar
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
-        var d = destinoService.buscarPorId1(id)
-                  .orElseThrow(() -> new IllegalArgumentException("Não encontrado: "+id));
+        Destino d = destinoService.buscarPorId(id);
         model.addAttribute("destino", d);
         model.addAttribute("editar", true);
         return "destino-form";
     }
+    
     @PostMapping("/editar")
     public String atualizar(@Valid @ModelAttribute Destino destino, BindingResult br) {
         if (br.hasErrors()) return "destino-form";
@@ -74,5 +88,22 @@ public class DestinoController {
         destinoService.excluir(id);
         return "redirect:/destinos";
     }
-    
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        // binder para preço em formato "1.234,56"
+        binder.registerCustomEditor(Double.class, "preco", new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text == null || text.isBlank()) {
+                    setValue(null);
+                } else {
+                    // remove pontos de milhar e troca vírgula por ponto decimal
+                    String normalized = text.replace(".", "").replace(",", ".");
+                    setValue(Double.parseDouble(normalized));
+                }
+            }
+        });
+    }
+
 }

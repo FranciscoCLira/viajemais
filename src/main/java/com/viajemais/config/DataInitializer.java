@@ -50,16 +50,15 @@ public class DataInitializer implements CommandLineRunner {
     	// Log o flag e counts - ver console ao subir a app
     	// System.out.printf("reloadData=%b, counts: DEST=%d, CLI=%d, CON=%d, ITEM=%d%n",
     	// 	    reloadData, cntDest, cntCli, cntCon, cntItem);
-    	System.out.println("******************************************");
+    	System.out.println("************************************************************************************");
     	System.out.printf("reloadData=%b, anyData=%b, counts: DESTINO=%d, CLIENTE=%d, CONTRATACAO=%d, ITEM=%d%n",
     		               reloadData, anyData, cntDest, cntCli, cntCon, cntItem);
-    	System.out.println("******************************************");
         
     	// só recarrega se explicitamente pediu (reloadData==true)
     	// e não há NENHUMA tabela com dados (anyData==false)
         if (reloadData || !anyData) {
-        	System.out.println("**** recarregando a basa de dados *******");
-        	System.out.println("reloadData=" + reloadData + ", anyData=" + anyData);
+        	System.out.println("**** Recarregando a basa de dados *******");
+        	System.out.println("************************************************************************************");
   
         	// reload só quando for a primeira carga OU reloadData=true
         
@@ -92,6 +91,7 @@ public class DataInitializer implements CommandLineRunner {
             // 5) Sincroniza cod_cliente = id
             jdbc.execute("UPDATE CLIENTE SET cod_cliente = id");
         } else
-    	System.out.println("**** não recarregou a basa de dados *********");
+    	System.out.println("**** Não recarregou a basa de dados *********");
+    	System.out.println("************************************************************************************");
     }
 }
