@@ -8,10 +8,15 @@
 <body>
   <div class="container">
     <!-- Cabeçalho -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-      <h1>Histórico de Contratações</h1>
-      <a th:href="@{/}" class="confirmar">Voltar à página inicial</a>
-    </div>
+	<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+	  <h1 style="margin:0;">Histórico de Contratações</h1>
+        <!-- Mesma classe do rodapé, garante cor azul idêntica -->
+        <button type="button"
+                class="botao-voltar"
+                onclick="window.location.href='/'">
+            Voltar à página inicial
+        </button>
+	</div>
 
     <table>
       <thead>
@@ -55,10 +60,13 @@
             <a th:if="${c.periodoInicio.compareTo(T(java.time.LocalDate).now()) >= 0 
                       and c.periodoFim.compareTo(T(java.time.LocalDate).now()) >= 0}"
                th:href="@{/contratacao/editar/{id}(id=${c.id})}"
+               style="padding:0.15rem 0.4rem;font-size:0.75rem;line-height:1;"
                class="confirmar">Editar</a>
+               
             <a th:if="${c.periodoInicio.compareTo(T(java.time.LocalDate).now()) >= 0 
                       and c.periodoFim.compareTo(T(java.time.LocalDate).now()) >= 0}"
                th:href="@{/contratacao/excluir/{id}(id=${c.id})}"
+               style="padding:0.15rem 0.4rem;font-size:0.75rem;line-height:1;"
                class="cancelar"
                onclick="return confirm('Confirma exclusão?');">Excluir</a>
           </td>
@@ -66,9 +74,22 @@
       </tbody>
     </table>
 
-    <div style="text-align:center;margin-top:1rem;">
-      <a th:href="@{/}" class="confirmar">Voltar à página inicial</a>
-    </div>
+
+		<!-- Botões no rodapé, centralizados e lado a lado -->
+	    <div style="text-align: center; margin-top: 20px;">
+	        <button type="button"
+	                class="botao-voltar"
+	                style="margin-right: 0.5rem;"
+	                onclick="window.scrollTo(0,0);">
+	            Voltar ao início desta página
+	        </button>
+	        
+	        <button type="button"
+	                class="botao-voltar"
+	                onclick="window.location.href='/'">
+	            Voltar à página inicial
+	        </button>
+	    </div>
   </div>
 
   <script>

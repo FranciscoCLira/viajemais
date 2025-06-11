@@ -8,10 +8,9 @@
         /* Reduzir espaço interno de células para diminuir altura da linha */
         table th, table td {
             padding: 0.2rem 0.4rem;
-            vertical-align: middle;
         }
         /* Ajustar altura dos botões para ficarem bem menores */
-        .confirmar, .cancelar {
+        .cancelar {
             padding: 0.15rem 0.35rem;
             font-size: 0.75rem;
             width: 80px;
@@ -35,22 +34,24 @@
 <body>
     <div class="container">
 		<!-- Cabeçalho com título e botões alinhados -->
-		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-		  <h1 style="margin: 0;">Clientes Cadastrados</h1>
+		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+		  <h1 style="margin:0;">Clientes Cadastrados</h1>
 		  <div>
-		    <!-- Botão Novo Cliente (verde) com margem menor -->
-		    <a th:href="@{/clientes/novo}"
-		       class="confirmar"
-		       style="margin-right: 0.5rem;">
-		      Novo Cliente
-		    </a>
-		    <!-- Botão Voltar ao Início (azul) usa mesma classe do rodapé -->
-		    <a th:href="@{/}"
-		       class="cancelar">
-		      Voltar à página inicial
-		    </a>
+	        <a th:href="@{/clientes/novo}"
+	           class="confirmar"
+	           style="margin-right: 0.5rem;">
+	          Novo Cliente
+	        </a>          
+
+	        <!-- Mesma classe do rodapé, garante cor azul idêntica -->
+	        <button type="button"
+	                class="botao-voltar"
+	                onclick="window.location.href='/'">
+	            Voltar à página inicial
+	        </button>
+
 		  </div>
-		</div> 
+		</div>
 
         <table>
             <thead>
@@ -110,17 +111,20 @@
         </table>
 
 		<!-- Botões no rodapé, centralizados e lado a lado -->
-		<div style="margin-top: 0.3rem; text-align: center;">
-		  <a th:href="@{/clientes/novo}"
-		     class="confirmar"
-		     style="margin-right: 0.5rem;">
-		    Novo Cliente
-		  </a>
-		  <a th:href="@{/}"
-		     class="confirmar">
-		    Voltar à página inicial
-		  </a>
-		</div>
+	    <div style="text-align: center; margin-top: 20px;">
+	        <button type="button"
+	                class="botao-voltar"
+	                style="margin-right: 0.5rem;"
+	                onclick="window.scrollTo(0,0);">
+	            Voltar ao início desta página
+	        </button>
+	        
+	        <button type="button"
+	                class="botao-voltar"
+	                onclick="window.location.href='/'">
+	            Voltar à página inicial
+	        </button>
+	    </div>
     </div>
 
 </body>
