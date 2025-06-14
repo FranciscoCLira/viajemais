@@ -1,0 +1,43 @@
+erDiagram
+    CLIENTE ||--o{ CONTRATACAO : realiza
+    CONTRATACAO ||--o{ ITEM_CONTRATACAO : inclui
+    ITEM_CONTRATACAO }o--|| DESTINO : aponta_para
+    DESTINO }o--|| CATEGORIA : classificado_em
+
+    CLIENTE {
+        int    id PK
+        date   dataCadastro
+        string nomeCliente
+        string situacaoCliente
+    }
+
+    CATEGORIA {
+        int    id PK
+        string nome
+        string situacaoCategoria
+        date   data
+    }
+
+    DESTINO {
+        int    id PK
+        string local
+        float  preco
+        string imagemUrl
+        int    categoriaId
+    }
+
+    CONTRATACAO {
+        int    id PK
+        string nomeCliente
+        date   data
+        date   periodoInicio
+        date   periodoFim
+        int    quantidadePessoas
+    }
+
+    ITEM_CONTRATACAO {
+        int    id PK
+        int    contratacaoId
+        int    destinoId
+        float  precoUnitario
+    }
