@@ -48,7 +48,7 @@
 	  <div th:each="destino : ${destinosSelecionados}" class="destino-item">
 		  <input type="hidden" name="destinos" th:value="${destino.id}">
 		  <p>
-			 <strong th:text="${destino.local}">Praia</strong> –
+			 <strong th:text="${destino.local}">Praia</strong> –  
 			 R$ <span class="ptbr" th:attr="data-value=${destino.preco}"></span>
 			 <small>por diária</small>
 		  </p>

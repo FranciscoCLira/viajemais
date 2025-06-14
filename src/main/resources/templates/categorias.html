@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Categorias</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+	<style>
+	    /* reduz altura de cada item */
+	    .categoria {
+	      padding: 0.5rem 1rem;
+	      margin-bottom: 0.5rem;
+	      position: relative;
+	    }
+	    /* posiciona botões de ação no topo direito do item */
+	    .categoria .acoes-item {
+	      position: absolute;
+	      top: 0.5rem;
+	      right: 1rem;
+	      display: flex;
+	      gap: 0.5rem;
+	    }
+	</style>    
+</head>
+<body>
+<div class="container">
+    <!-- Cabeçalho com título à esquerda e botões à direita -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h1 style="margin: 0;">Categorias</h1>
+      <div>
+        <a th:href="@{/categorias/novo}"
+           class="confirmar"
+           style="margin-right: 0.5rem;">
+          Nova Categoria
+        </a>
+        <!-- Mesma classe do rodapé, garante cor azul idêntica -->
+        <button type="button"
+                class="botao-voltar"
+                onclick="window.location.href='/destinos'">
+          Voltar à página anterior
+        </button>
+      </div>
+    </div>
+    
+    <!-- Lista de categorias -->
+    <div th:each="categoria : ${categorias}" class="categoria">
+        <!-- botões de ação no topo do item -->
+        <div class="acoes-item">
+          <a th:href="@{/categorias/editar/{id}(id=${categoria.id})}"
+             class="confirmar" style="padding:0.2rem 0.5rem;font-size:0.8rem;">Editar</a>
+             
+		  <!-- só mostra Excluir se a situação for 'C' (Cancelada) -->
+		  <a th:if="${categoria.situacaoCategoria == 'C'}"
+			 th:href="@{/categorias/excluir/{id}(id=${categoria.id})}" 
+			 class="cancelar"
+			 style="padding:0.2rem 0.5rem;font-size:0.8rem;"
+			 onclick="return confirm('Confirma exclusão?');">
+			 Excluir
+	      </a>
+        </div>
+        
+        <h2>
+             <span th:text="${categoria.id}">1</span> -
+             <span th:text="${categoria.nome}">Praia</span>
+      </h2>
+      
+	    <p>
+	    <strong>Situação da Categoria:</strong>
+	    <span th:text="${categoria.descricaoSituacao}"> Ativa</span>
+	    </p>
+	    <p>
+	    <strong>Data:</strong>
+	    <span th:text="${#temporals.format(categoria.data,'dd/MM/yyyy')}">12/06/2025</span>
+	    </p>
+    </div>
+
+    <!-- Rodapé com os dois botões centralizados -->
+    <div style="text-align: center; margin-top: 20px;">
+        <button type="button"
+                class="botao-voltar"
+                style="margin-right: 0.5rem;"
+                onclick="window.scrollTo(0,0);">
+            Voltar ao início desta página
+        </button>
+        <button type="button"
+                class="botao-voltar"
+                onclick="window.location.href='/destinos'">
+            Voltar à página anterior
+        </button>
+    </div>
+</div>
+
+</body>
+</html>

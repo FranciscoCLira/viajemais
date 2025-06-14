@@ -32,6 +32,14 @@
            style="margin-right: 0.5rem;">
           Novo Destino
         </a>
+        
+          
+        <a th:href="@{/categorias}" 
+           class="confirmar" 
+           style="margin:0 0.5rem;">
+           Categorias
+        </a>
+        
         <!-- Mesma classe do rodapé, garante cor azul idêntica -->
         <button type="button"
                 class="botao-voltar"
@@ -50,9 +58,10 @@
              onclick="return confirm('Confirma exclusão?');">Excluir</a>
         </div>
         <h2 th:text="${destino.local}">Local</h2>
+        
         <p>
             <strong>Categoria:</strong>
-            <span th:text="${destino.categoria}">Categoria</span>
+            <span th:text="${destino.categoria.nome}">Categoria</span>
         </p>
         <p>
             Preço: R$ 

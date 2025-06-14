@@ -7,5 +7,6 @@ import com.viajemais.entities.Destino;
 import java.util.List;
 
 public interface DestinoRepository extends JpaRepository<Destino, Long> {
-    List<Destino> findByCategoria(String categoria);
+    // percorre o objeto: campoCategoria.nome
+    List<Destino> findByCategoriaNomeIgnoreCase(String nomeCategoria);
 }

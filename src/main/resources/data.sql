@@ -1,3 +1,28 @@
+-- 1) adiciona coluna permitida null
+ALTER TABLE DESTINO ADD COLUMN CATEGORIA_ID BIGINT;
+
+-- 2) insere categoria de fallback se necessário
+INSERT INTO CATEGORIA (NOME, SITUACAO, DATA)
+  SELECT 'Praia','A', CURRENT_DATE()
+  WHERE NOT EXISTS (SELECT 1 FROM CATEGORIA WHERE NOME='Praia');
+
+-- 3) preenche o novo campo nos destinos antigos
+UPDATE DESTINO d
+   SET CATEGORIA_ID = (SELECT ID FROM CATEGORIA WHERE NOME='Praia');
+
+-- 4) bloqueia null e adiciona FK
+ALTER TABLE DESTINO ALTER COLUMN CATEGORIA_ID BIGINT NOT NULL;
+ALTER TABLE DESTINO
+  ADD CONSTRAINT FK_DESTINO_CATEGORIA
+  FOREIGN KEY (CATEGORIA_ID)
+  REFERENCES CATEGORIA(ID);
+
+
+INSERT INTO CATEGORIA (nome, situacao, data) VALUES ('Praia','A',CURRENT_DATE());
+INSERT INTO CATEGORIA (nome, situacao, data) VALUES ('Cidade','A',CURRENT_DATE());
+INSERT INTO CATEGORIA (nome, situacao, data) VALUES ('Parque','A',CURRENT_DATE());
+INSERT INTO CATEGORIA (nome, situacao, data) VALUES ('Museu','A',CURRENT_DATE());
+
 INSERT INTO destino (local, categoria, imagem_url, preco) VALUES ('Praia do Caribe', 'Praias', 'https://magazine.zarpo.com.br/wp-content/uploads/2022/02/capa_praia-do-caribe_zarpo-770x515.jpg', 8500.00);
 INSERT INTO destino (local, categoria, imagem_url, preco) VALUES ('Fernando de Noronha', 'Praias', 'https://www.melhoresdestinos.com.br/wp-content/uploads/2022/02/fernando-noronha-capa-2022-1536x805.jpg', 6500.01);
 INSERT INTO destino (local, categoria, imagem_url, preco) VALUES ('Orlando', 'Parques', 'https://example.com/orlando.jpg', 9200.05);

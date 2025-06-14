@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Categoria</title>
+  <link rel="stylesheet" th:href="@{/css/estilo.css}">
+  
+  <style>
+  .campo-nome {
+    width: 100ch !important;
+  }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+      <h1 th:text="${editar} ? 'Editar Categoria' : 'Nova Categoria'">Nova Categoria</h1>
+
+      <form th:action="${editar} ? @{/categorias/editar} : @{/categorias}"
+            th:object="${categoria}"
+            method="post">
+          
+      <input type="hidden" th:if="${editar}" th:field="*{id}" />
+      
+      <!-- Mantém a data original ao editar -->
+      <input type="hidden" th:if="${editar}" th:field="*{data}" />
+
+
+      <div class="form-group">
+        <label for="nome">Nome da Categoria:</label>
+        <input type="text" id="nome" th:field="*{nome}" class="campo-nome" required />
+        <div th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" class="erro"></div>
+      </div>
+
+      <div class="form-group">
+          <label for="situacaoCategoria">Situação:</label>
+          <select
+              id="situacaoCategoria"
+              th:field="*{situacaoCategoria}"
+              style="width: 25%;"
+              required>
+              <option value="A" th:selected="${categoria.situacaoCategoria == 'A'}">Ativo</option>
+              <option value="I" th:selected="${categoria.situacaoCategoria == 'I'}">Inativo</option>
+              <option value="P" th:selected="${categoria.situacaoCategoria == 'P'}">Pendente</option>
+              <option value="C" th:selected="${categoria.situacaoCategoria == 'C'}">Cancelado</option>
+          </select>
+          <div th:if="${#fields.hasErrors('situacaoCategoria')}"
+               th:errors="*{situacaoCategoria}"
+               class="erro"></div>
+      </div>
+
+      <!-- Data de Cadastro não aparece; já é gerada no backend -->
+
+
+      <div class="rodape-botoes">
+        <button type="submit" class="confirmar"
+                th:text="${editar} ? 'Salvar' : 'Criar'">Criar</button>
+        <a th:href="@{/categorias}" class="cancelar">Cancelar</a>
+      </div>
+    </form>
+  </div>
+  
+</body>
+</html>
