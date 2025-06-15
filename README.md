@@ -65,30 +65,67 @@
 # 
 ## Páginas web principais e IDE 
 
-##### 01 - IDE - restart app localHost 
-![IDE-STS4](assets/01A2-IDE-STS-4.png))
-01A1-Home.jpg
+##### IDE - restart app localHost 
+![IDE-STS4](assets/01A1-IDE-STS-4.png))
 
-##### 02 - Home e Selecinar Viagens 
-![Home](assets/01A1-Home.jpg))
+##### Home e Selecinar Viagens 
+![Home](assets/01B1-Home.jpg))
 
-##### 03 - Histórico de Contratações  
-![Contratacoes](assets/01A2-Contratacoes.jpg))
+##### Confirmação de Viagem 
+![ConfirmacaoViagem](assets/01B2-ConfirmacaoViagem.jpg))
 
-##### 04 - Categorias
-##### 05 - Destinos
-##### 06 - Clientes
-##### 07 - Contratações
-##### 08 - Itens Contratações
+##### Histórico de Contratações  
+![HistoricoContratacoes](assets/01B3-HistoricoContratacoes.jpg))
+
+##### Editar Contratação 
+![EditarContratacao](assets/01B4-EditarContratacao.jpg))
+
+##### Excluir Contratação 
+![ExcluirContratacao](assets/01B5-ExcluirContratacao.jpg))
+
+##### Categorias
+![Categorias](assets/01C1-Categorias.jpg))
+
+##### Nova Categoria
+![NovaCategoria](assets/01C2-NovaCategoria.jpg))
+
+##### Editar Categorias
+![EditarCategorias](assets/01C3-EditarCategoria.jpg))
+
+##### Destinos
+![Destinos](assets/01D1-Destinos.jpg))
+
+##### Novo Destino
+![NovoDestino](assets/01D2-NovoDestino.jpg))
+
+##### Editar Destino
+![EditarDestino](assets/01D3-EditarDestino.jpg))
+
+##### Novo Cliente
+![NovoCliente](assets/01E1-NovoCliente.jpg))
+
+##### Clientes Cadastrados 
+![Clientes](assets/01E2-ClientesCadastrados.jpg))
 
 
 # 
 ## DB H2: 
-##### 01 - CLIENTE 
-##### 02 - CATEGORIA                                                     
-##### 03 - DESTINO                                                     
-##### 04 - CONTRATACAO                                                     
-##### 05 - ITEM_CONTRATACAO 
+
+##### CLIENTE 
+![Cliente](assets/H2-01-Cliente.jpg))
+
+##### CATEGORIA 
+![Categoria](assets/H2-02-Categoria.jpg))
+
+##### DESTINO  
+![Destino](assets/H2-03-Destino.jpg))
+
+##### CONTRATACAO 
+![Contratacao](assets/H2-04-Contratacao.jpg))
+
+##### ITEM_CONTRATACAO 
+![ItemContratacao](assets/H2-05-ItemContratacao.jpg))
+                                                    
                                                
         
 __________________________________________________________________________
