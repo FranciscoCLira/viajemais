@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  </head>
+  <body>
+    <div class="mermaid"></div>
+
+    <script>
+      // inicializa o Mermaid mas sem renderizar nada ainda
+      mermaid.initialize({ startOnLoad: false });
+
+      // carrega o .mmd e injeta no div
+      fetch('viajemais.mmd')
+        .then(r => r.text())
+        .then(src => {
+          const container = document.querySelector('.mermaid');
+          container.textContent = src;
+          // agora renderiza o diagrama
+          mermaid.init(undefined, container);
+        })
+        .catch(err => console.error('Erro ao carregar MER:', err));
+    </script>
+  </body>
+</html>

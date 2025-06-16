@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>MER ViajeMais</title>
+    <!-- importa o Mermaid do CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+      body { font-family: sans-serif; padding: 2rem; }
+      .mermaid { margin: auto; }
+    </style>
+  </head>
+  
+  <body>
+    <h1>Modelo ER do ViajeMais</h1>
+    <!-- bloco mermaid dinâmico: rankdir LR + htmlLabels -->
+    <div id="diagram" class="mermaid">Carregando diagrama…</div>
+    
+    <script>
+    (async () => {
+      try {
+        // 1) busca seu arquivo .mmd
+        const resp = await fetch('/docs/viajemais.mmd');
+        const mermaidText = await resp.text();
+
+        // 2) cria o bloco init SEM indentação e duas lines em branco
+        const init = '%%{init:{"securityLevel":"loose","flowchart":{"htmlLabels":true,"rankdir":"LR"}}}%%\n\n';
+
+        // 3) injeta no container
+        const container = document.getElementById('diagram');
+        container.textContent = init + mermaidText;
+
+        // 4) inicializa apenas esse bloco (o startOnLoad fica false)
+        mermaid.initialize({ startOnLoad: false });
+        mermaid.init(undefined, container);
+      } catch (e) {
+        document.getElementById('diagram').textContent =
+          'Erro ao carregar diagrama: ' + e;
+        console.error(e);
+      }
+    })();
+</script>
+  
+</body>
+</html>

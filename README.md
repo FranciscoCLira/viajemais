@@ -38,7 +38,8 @@
 
 # 
 ## Modelo ERD
-![ERD](docs/diagrama.png))
+    Gerado via https://mermaid.live com src/main/resources/static/docs/viajemais.mmd 
+![ERD](assets/01A0-Diagrama80.png))
  
 # 
 ## Tecnologias

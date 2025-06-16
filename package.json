@@ -1,0 +1,27 @@
+{
+  "name": "viajemais",
+  "version": "1.0.0",
+  "description": "- Criar, editar (situação) e excluir (apenas clientes cancelados).   \r   - Nome único, validações de formato e tamanho.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gen:mermaid": "mmdc -i src/main/resources/static/docs/viajemais.mmd -o src/main/resources/static/docs/diagrama.svg"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FranciscoCLira/viajemais.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FranciscoCLira/viajemais/issues"
+  },
+  "homepage": "https://github.com/FranciscoCLira/viajemais#readme",
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.4.3"
+  }
+}
