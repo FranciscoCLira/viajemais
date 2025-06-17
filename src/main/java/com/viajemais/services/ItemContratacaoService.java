@@ -12,31 +12,36 @@ import org.springframework.stereotype.Service;
 @Service
 public class ItemContratacaoService {
 
-    private final ItemContratacaoRepository itemRepo;
+    private final ItemContratacaoRepository repo;
 
-    public ItemContratacaoService(ItemContratacaoRepository itemRepo) {
-        this.itemRepo = itemRepo;
+    public ItemContratacaoService(ItemContratacaoRepository repo) {
+        this.repo = repo;
     }
 
+    /** Retorna true se existir ao menos um item referenciando este destino */
+    public boolean existsByDestinoId(Long destinoId) {
+        return repo.existsByDestinoId(destinoId);
+    }
+    
     /** Remove todos os itens de uma determinada contratação */
     @Transactional
     public void removerPorContratacao(Long contratacaoId) {
-    	itemRepo.deleteByContratacaoId(contratacaoId);
+    	repo.deleteByContratacaoId(contratacaoId);
     }
 
     /** Remove todos os itens de um destino */
     @Transactional
     public void removerPorDestino(Long destinoId) {
-    	itemRepo.deleteByDestinoId(destinoId);
+    	repo.deleteByDestinoId(destinoId);
     }
     
 
     public void salvar(ItemContratacao item) {
-        itemRepo.save(item);
+        repo.save(item);
     }
     
     public List<ItemContratacao> buscarItensPorContratacao(Long contratacaoId) {
-        return itemRepo.findByContratacaoId(contratacaoId);
+        return repo.findByContratacaoId(contratacaoId);
     }
 
 }

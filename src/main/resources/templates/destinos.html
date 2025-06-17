@@ -48,15 +48,26 @@
         </button>
       </div>
     </div>
+
     
+    <div th:if="${erroExclusao}" class="alert alert-danger" th:text="${erroExclusao}"></div>
+    <div th:if="${sucesso}"    class="alert alert-success" th:text="${sucesso}"></div>    
+
     <!-- Lista de destinos -->
     <div th:each="destino : ${destinos}" class="destino">
         <!-- botões de ação no topo do item -->
         <div class="acoes-item">
-          <a th:href="@{/destinos/editar/{id}(id=${destino.id})}" class="confirmar" style="padding:0.2rem 0.5rem;font-size:0.8rem;">Editar</a>
-          <a th:href="@{/destinos/excluir/{id}(id=${destino.id})}" class="cancelar" style="padding:0.2rem 0.5rem;font-size:0.8rem;"
-             onclick="return confirm('Confirma exclusão?');">Excluir</a>
-        </div>
+        <a th:href="@{/destinos/editar/{id}(id=${destino.id})}"
+           class="confirmar">Editar</a>
+
+        <!-- Só exibe Excluir se nosso map disser que pode -->
+        <a th:if="${podeExcluirMap[destino.id]}"
+           th:href="@{/destinos/excluir/{id}(id=${destino.id})}"
+           class="cancelar"
+           onclick="return confirm('Confirma exclusão?');">
+          Excluir
+        </a>
+      </div>
         
         <h2> 
            (<span th:text="${destino.id}">1</span>) -

@@ -5,6 +5,7 @@ import com.viajemais.repositories.DestinoRepository;
 
 import jakarta.transaction.Transactional;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -14,21 +15,37 @@ import java.util.Optional;
 @Service
 public class DestinoService {
 
-    private final DestinoRepository destinoRepository;
-    private final ItemContratacaoService itemService;
+    private final DestinoRepository repo;
+    private final ItemContratacaoService itemRepo;
 
-    public DestinoService(DestinoRepository destinoRepository,
-                    ItemContratacaoService itemService) {
-        this.destinoRepository = destinoRepository;
-        this.itemService = itemService;
+    public DestinoService(DestinoRepository repo,
+                    ItemContratacaoService itemRepo) {
+        this.repo = repo;
+        this.itemRepo = itemRepo;
     }
 
+    /** Só pode excluir se não houver nenhum item de contratação deste destino */
+    public boolean podeExcluir(Long destinoId) {
+        // nota: existsByDestinoId retorna true quando HÁ referências,
+        // então invertemos o resultado
+        return !itemRepo.existsByDestinoId(destinoId);
+    }
+    
+    /** Exclui ou lança exceção se não puder */
+    public void excluir(Long id) {
+        if (!podeExcluir(id)) {
+            throw new DataIntegrityViolationException(
+              "Este destino está em pelo menos uma contratação e não pode ser excluído.");
+        }
+        repo.deleteById(id);
+    }
+    
     public List<Destino> buscarPorIds(List<Long> ids) {
-        return destinoRepository.findAllById(ids);
+        return repo.findAllById(ids);
     }
 
     public Destino buscarPorId(Long id) {
-        return destinoRepository.findById(id).orElseThrow();
+        return repo.findById(id).orElseThrow();
     }
 
     
@@ -36,30 +53,30 @@ public class DestinoService {
      * Busca destinos por uma lista de IDs.
      */
     public Optional<Destino> buscarPorId1(Long id) {
-        return destinoRepository.findById(id);
+        return repo.findById(id);
     }
 
     /**
      * Retorna todos os destinos.
      */
     public List<Destino> listarTodos() {
-        return destinoRepository.findAll();
+        return repo.findAll();
     }
 
     /**
      * Cria ou atualiza um destino.
      */
     public Destino salvar(Destino destino) {
-        return destinoRepository.save(destino);
+        return repo.save(destino);
     }
 
     @Transactional 
-    public void excluir(Long id) {
+    public void excluir2(Long id) {
         // 1) Remove todos os itens vinculados a este destino
-        itemService.removerPorDestino(id);
+        itemRepo.removerPorDestino(id);
 
         // 2) Só então exclui o destino
-        destinoRepository.deleteById(id);
+        repo.deleteById(id);
     }
     
     /**
@@ -68,7 +85,7 @@ public class DestinoService {
     @Transactional
     public void excluir1(Long id) {
         try {
-            destinoRepository.deleteById(id);
+            repo.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
             // opcional: logar ou tratar caso o ID não exista
             throw new IllegalArgumentException("Não foi possível excluir. Destino não encontrado: " + id);

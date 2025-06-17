@@ -8,6 +8,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 
 import jakarta.validation.Valid;
@@ -34,13 +41,6 @@ public class DestinoController {
     public String listarCategorias(Model model) {
         model.addAttribute("categorias", categoriaService.listarTodas());
         return "categorias";
-    }
-    
-    /** Lista todos (GET  /destinos) */
-    @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("destinos", destinoService.listarTodos());
-        return "destinos";
     }
     
     /** Formulário de criação (GET /destinos/novo) */
@@ -150,11 +150,40 @@ public class DestinoController {
  
     /** Exclusão (GET /destinos/excluir/{id}) */
     @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id) {
-        destinoService.excluir(id);
+    public String excluir(@PathVariable Long id,
+                          RedirectAttributes ra) {
+        try {
+            destinoService.excluir(id);
+            ra.addFlashAttribute("sucesso", "Destino excluído com sucesso.");
+        } catch (DataIntegrityViolationException e) {
+            // Nunca deixar o stack explodir: capturamos e voltamos a listagem
+            ra.addFlashAttribute("erroExclusao",
+                "Não foi possível excluir: há contratações associadas a este destino.");
+        }
         return "redirect:/destinos";
     }
 
+    /** Lista todos (GET  /destinos) */
+    @GetMapping
+    public String listar(Model model,
+                         @ModelAttribute("erroExclusao") String erroExclusao,
+                         @ModelAttribute("sucesso") String sucesso) {
+        List<Destino> destinos = destinoService.listarTodos();
+
+        // construímos um map de ID → podeExcluir
+        Map<Long, Boolean> podeExcluirMap = new HashMap <>();
+        for (Destino d : destinos) {
+            podeExcluirMap.put(d.getId(), destinoService.podeExcluir(d.getId()));
+        }
+
+        model.addAttribute("destinos", destinos);
+        model.addAttribute("podeExcluirMap", podeExcluirMap);
+        model.addAttribute("erroExclusao", erroExclusao);
+        model.addAttribute("sucesso", sucesso);
+        return "destinos";
+    }    
+    
+    
 	/*
 	 * @InitBinder public void initBinder(WebDataBinder binder) { // binder para
 	 * preço em formato "1.234,56" binder.registerCustomEditor(Double.class,
