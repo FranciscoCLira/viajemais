@@ -4,9 +4,12 @@ import java.beans.PropertyEditorSupport;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +29,7 @@ import com.viajemais.entities.Destino;
 import com.viajemais.entities.ItemContratacao;
 import com.viajemais.services.ClienteService;
 import com.viajemais.services.ContratacaoService;
+
 import com.viajemais.services.DestinoService;
 import com.viajemais.services.ItemContratacaoService;
 
@@ -160,16 +164,19 @@ public class ContratacaoController {
     public String historico(Model model) {
         List<Contratacao> contratacoes = contratacaoService.listarTodas();
 
+        // 1) calcula diárias, itens e total para cada contratação
         for (Contratacao c : contratacoes) {
             long diff = ChronoUnit.DAYS.between(c.getPeriodoInicio(), c.getPeriodoFim());
             long diarias = diff == 0 ? 1 : diff;
             c.setQuantidadeDiarias(diarias);
 
-            List<ItemContratacao> itens = itemContratacaoService.buscarItensPorContratacao(c.getId());
+            List<ItemContratacao> itens = itemContratacaoService
+                    .buscarItensPorContratacao(c.getId());
             double total = 0;
             for (ItemContratacao item : itens) {
-                // Aqui incluímos a Qt. Pessoas no cálculo:
-                double valor = item.getPrecoUnitario() * diarias * c.getQuantidadePessoas();
+                double valor = item.getPrecoUnitario() 
+                               * diarias 
+                               * c.getQuantidadePessoas();
                 item.setValorDestino(valor);
                 total += valor;
             }
@@ -177,7 +184,21 @@ public class ContratacaoController {
             c.setTotalViagem(total);
         }
 
+        // 2) monta o map de quais podem ser excluídos
+        Map<Long, Boolean> podeExcluirMap = new HashMap<>();
+        for (Contratacao c : contratacoes) {
+            podeExcluirMap.put(
+                c.getId(),
+                contratacaoService.canExcluir(c.getId())
+            );
+        }
+
+        // 3) coloca tudo no Model UMA ÚNICA VEZ
         model.addAttribute("contratacoes", contratacoes);
+        model.addAttribute("podeExcluirMap", podeExcluirMap);
+        // flash-attributes (sucesso/erroExclusao) já estarão no model automaticamente
+
+        // 4) retorna o nome da view
         return "contratacao-lista";
     }
 
@@ -242,22 +263,17 @@ public class ContratacaoController {
 
     /** Exclui a contratação, só se permitida (datas ≥ hoje) */
     @GetMapping("/excluir/{id}")
-    public String excluirContratacao(@PathVariable Long id,
-                                     RedirectAttributes ra) {
-		Optional<Contratacao> opt = contratacaoService.buscarPorId(id);
-		if (opt.isPresent()) {
-		Contratacao c = opt.get();
-		LocalDate hoje = LocalDate.now();
-		if (!c.getPeriodoInicio().isBefore(hoje) &&
-		!c.getPeriodoFim().isBefore(hoje)) {
-		contratacaoService.excluir(id);
-		} else {
-		ra.addFlashAttribute("erroExclusao",
-		"Só é possível excluir viagens com período futuro ou atual");
-		}
-		}
-		return "redirect:/contratacao/historico";
-	}
+    public String excluir(@PathVariable Long id, RedirectAttributes ra) {
+        try {
+            contratacaoService.excluir(id);
+            ra.addFlashAttribute("sucesso",
+              "Contratação excluída com sucesso.");
+        } catch (DataIntegrityViolationException e) {
+            ra.addFlashAttribute("erroExclusao",
+              "Só é possível excluir viagens cujo início seja futuro.");
+        }
+        return "redirect:/contratacao/historico";
+    }
     
     @InitBinder
     public void initBinder(WebDataBinder binder) {

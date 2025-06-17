@@ -2,8 +2,11 @@ package com.viajemais.services;
 
 import com.viajemais.entities.Contratacao;
 import com.viajemais.repositories.ContratacaoRepository;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +33,18 @@ public class ContratacaoService {
         return contratacaoRepository.findById(id);
     }
 
-    public void excluir(Long id) {
-        contratacaoRepository.deleteById(id);
+    /** Verdadeiro se a data de início for estritamente futura */
+    public boolean canExcluir(Long id) {
+        return buscarPorId(id)
+               .map(c -> c.getPeriodoInicio().isAfter(LocalDate.now()))
+               .orElse(false);
     }
+
+    public void excluir(Long id) {
+        if (!canExcluir(id)) {
+            throw new DataIntegrityViolationException(
+              "Só é possível excluir viagens cujo início seja futuro");
+        }
+        contratacaoRepository.deleteById(id);
+    }    
 }

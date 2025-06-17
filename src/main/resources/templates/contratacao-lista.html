@@ -18,6 +18,10 @@
         </button>
 	</div>
 
+	<div th:if="${erroExclusao}" class="alert alert-danger" th:text="${erroExclusao}"></div>
+	<div th:if="${sucesso}"    class="alert alert-success" th:text="${sucesso}"></div>
+	
+	
     <table>
       <thead>
         <tr>
@@ -56,21 +60,18 @@
           <td>
             <strong class="ptbr" th:attr="data-value=${c.totalViagem}"></strong>
           </td>
-          <td class="acoes-cell">
-            <a th:if="${c.periodoInicio.compareTo(T(java.time.LocalDate).now()) >= 0 
-                      and c.periodoFim.compareTo(T(java.time.LocalDate).now()) >= 0}"
-               th:href="@{/contratacao/editar/{id}(id=${c.id})}"
-               style="padding:0.15rem 0.4rem;font-size:0.75rem;line-height:1;"
-               class="confirmar">Editar</a>
-               
-            <a th:if="${c.periodoInicio.compareTo(T(java.time.LocalDate).now()) >= 0 
-                      and c.periodoFim.compareTo(T(java.time.LocalDate).now()) >= 0}"
-               th:href="@{/contratacao/excluir/{id}(id=${c.id})}"
-               style="padding:0.15rem 0.4rem;font-size:0.75rem;line-height:1;"
-               class="cancelar"
-               onclick="return confirm('Confirma exclusão?');">Excluir</a>
-          </td>
-        </tr>
+	          <td class="acoes-cell">
+	          <a th:href="@{/contratacao/editar/{id}(id=${c.id})}"
+	             class="confirmar">Editar</a>
+	
+	          <a th:if="${podeExcluirMap[c.id]}"
+	             th:href="@{/contratacao/excluir/{id}(id=${c.id})}"
+	             class="cancelar"
+	             onclick="return confirm('Confirma exclusão?');">
+	            Excluir
+	          </a>
+	        </td>
+	        </tr>
       </tbody>
     </table>
 
