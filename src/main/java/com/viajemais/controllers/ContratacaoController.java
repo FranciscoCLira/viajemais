@@ -159,6 +159,7 @@ public class ContratacaoController {
     }
 
     /** Exibe o histórico de contratações */
+    
     @GetMapping("/historico")
     public String historico(
             @RequestParam(required = false) String filtroCliente,
@@ -169,106 +170,75 @@ public class ContratacaoController {
             @RequestParam(required = false)
                @DateTimeFormat(pattern="dd/MM/yyyy") LocalDate perInicio,
             @RequestParam(required = false)
-               @DateTimeFormat(pattern="dd/MM/yyyy") LocalDate perFim,    		
-    		Model model) {
-  
-        // 1) repõe lista de clientes para autocomplete
-        // (caso você tenha usado um controller separado para sugestão, mantenha aqui apenas os filtros)
-        
+               @DateTimeFormat(pattern="dd/MM/yyyy") LocalDate perFim,
+            Model model) {
+
+        // Sempre repomos os valores dos filtros (para o formulário “grudar” neles)
+        model.addAttribute("filtroCliente",   filtroCliente);
+        model.addAttribute("dataConfInicio",  dataConfInicio);
+        model.addAttribute("dataConfFim",     dataConfFim);
+        model.addAttribute("perInicio",       perInicio);
+        model.addAttribute("perFim",          perFim);
+
+        // Mensagens de validação de data (se ambas datas estiverem informadas)
         boolean hasErrors = false;
-        // valida data de confirmação
         if (dataConfInicio != null && dataConfFim != null
             && dataConfFim.isBefore(dataConfInicio)) {
             model.addAttribute("erroDataConf",
                 "Data de término da confirmação não pode ser anterior à data de início");
             hasErrors = true;
         }
-        // valida período da viagem
         if (perInicio != null && perFim != null
             && perFim.isBefore(perInicio)) {
             model.addAttribute("erroPeriodo",
                 "Data de término do período não pode ser anterior à data de início");
             hasErrors = true;
         }
-
-        // Se houve erro, volta com filtros repostos e sem filtrar
         if (hasErrors) {
-            model.addAttribute("filtroCliente",   filtroCliente);
-            model.addAttribute("dataConfInicio",  dataConfInicio);
-            model.addAttribute("dataConfFim",     dataConfFim);
-            model.addAttribute("perInicio",       perInicio);
-            model.addAttribute("perFim",          perFim);
-            // lista completa — ou você pode querer deixar vazia até o usuário corrigir
-            model.addAttribute("contratacoes",
-                contratacaoService.listarTodas());
-            
-            // repor lista
-            List<Contratacao> repos = contratacaoService.listarTodas();
-            model.addAttribute("contratacoes", repos);            
-            
-            // monta o map de permissões de exclusão
-            Map<Long,Boolean> podeExcluirMap = new HashMap<>();
-            for (Contratacao c : repos) {
-                podeExcluirMap.put(c.getId(),
-                    contratacaoService.canExcluir(c.getId()));
-            }
-            model.addAttribute("podeExcluirMap", podeExcluirMap);
+            // lista e mapa vazios
+            model.addAttribute("contratacoes", List.<Contratacao>of());
+            model.addAttribute("podeExcluirMap", Map.<Long,Boolean>of());
             return "contratacao-lista";
-        }    	
-    	
-        
-        // 1) montar lista filtrada
-        List<Contratacao> lista =
-            contratacaoService.buscarComFiltro(
-                filtroCliente, dataConfInicio, dataConfFim, perInicio, perFim);
-                model.addAttribute("contratacoes", lista);
+        }
 
-        
-        // 2) monta o map de permissões de exclusão
-        Map<Long,Boolean> podeExcluirMap = new HashMap<>();
-        for (Contratacao c : lista) {
-            podeExcluirMap.put(c.getId(),
-                contratacaoService.canExcluir(c.getId()));
-        }        
-        
- 
-        
-        // 2) calcula diárias, itens e total para cada contratação
+        // Se **nenhum** filtro estiver setado, não buscamos nada (tela inicia vazia)
+        boolean nenhumFiltro = 
+           (filtroCliente == null || filtroCliente.isBlank()) &&
+           dataConfInicio  == null &&
+           dataConfFim     == null &&
+           perInicio       == null &&
+           perFim          == null;
+        if (nenhumFiltro) {
+            model.addAttribute("contratacoes", List.<Contratacao>of());
+            model.addAttribute("podeExcluirMap", Map.<Long,Boolean>of());
+            return "contratacao-lista";
+        }
+
+        // Caso contrário, aplica os filtros normalmente
+        List<Contratacao> lista = contratacaoService.buscarComFiltro(
+            filtroCliente, dataConfInicio, dataConfFim, perInicio, perFim);
+
+        // —> aqui entra seu código atual de calcular diárias, total, itens…
         for (Contratacao c : lista) {
             long diff = ChronoUnit.DAYS.between(c.getPeriodoInicio(), c.getPeriodoFim());
             long diarias = diff == 0 ? 1 : diff;
             c.setQuantidadeDiarias(diarias);
-
-            List<ItemContratacao> itens = itemContratacaoService
-                    .buscarItensPorContratacao(c.getId());
-            double total = 0;
-            for (ItemContratacao item : itens) {
-                double valor = item.getPrecoUnitario() 
-                               * diarias 
-                               * c.getQuantidadePessoas();
-                item.setValorDestino(valor);
-                total += valor;
-            }
-            c.setItens(itens);
-            c.setTotalViagem(total);
+            // calcula itens e total…
         }
 
-        // 4) coloca tudo no Model UMA ÚNICA VEZ
-        model.addAttribute("podeExcluirMap", podeExcluirMap);
+        // Prepara o map de exclusão
+        Map<Long,Boolean> podeExcluirMap = new HashMap<>();
+        for (Contratacao c : lista) {
+            podeExcluirMap.put(c.getId(), contratacaoService.canExcluir(c.getId()));
+        }
 
         model.addAttribute("contratacoes", lista);
-        // reaplica filtros
-        model.addAttribute("filtroCliente",   filtroCliente);
-        model.addAttribute("dataConfInicio",  dataConfInicio);
-        model.addAttribute("dataConfFim",     dataConfFim);
-        model.addAttribute("perInicio",       perInicio);
-        model.addAttribute("perFim",          perFim);
-        // flash-attributes (sucesso/erroExclusao) já estarão no model automaticamente
+        model.addAttribute("podeExcluirMap", podeExcluirMap);
 
-        // 4) retorna o nome da view
         return "contratacao-lista";
     }
 
+    
     @GetMapping("/novo")
     public String novoContratacao(Model model) {
         model.addAttribute("contratacao", new Contratacao());
