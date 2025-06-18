@@ -225,3 +225,38 @@ label {
   margin-bottom: 0;
 }
 
+.filtros-contratacao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.filtro-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filtro-linha label {
+  width: 180px;        /* espaço reservado para o texto da label */
+  font-weight: bold;
+}
+
+.filtro-linha .campo-nome {
+  flex: 1;
+}
+
+.filtro-linha .campo-data {
+  width: 160px;
+}
+
+.filtro-linha .entre {
+  margin: 0 0.25rem;
+}
+
+.filtro-linha.botoes {
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}

@@ -20,6 +20,67 @@
 
 	<div th:if="${erroExclusao}" class="alert alert-danger" th:text="${erroExclusao}"></div>
 	<div th:if="${sucesso}"    class="alert alert-success" th:text="${sucesso}"></div>
+
+	
+	<!-- mensagens de validação -->
+	<div th:if="${erroDataConf}" class="erro" style="margin-bottom:0.5rem;"
+	     th:text="${erroDataConf}"></div>
+	<div th:if="${erroPeriodo}"   class="erro" style="margin-bottom:0.5rem;"
+	     th:text="${erroPeriodo}"></div>
+	
+	
+	<!-- FILTROS -->
+	<form th:action="@{/contratacao/historico}" method="get" class="filtros-contratacao">
+	  <!-- 1ª linha: Cliente (full width) -->
+	  <div class="filtro-linha">
+	    <label for="filtroCliente">Cliente</label>
+	    <input type="text"
+	           id="filtroCliente"
+	           name="filtroCliente"
+	           list="clientes-list"
+	           th:value="${filtroCliente}"
+	           placeholder="comece a digitar..."
+	           autocomplete="off"
+	           class="campo-nome" />
+	    <datalist id="clientes-list"></datalist>
+	  </div>
+
+	  <!-- 2ª linha: Data de Confirmação -->
+	  <div class="filtro-linha">
+	    <label>Data Confirmação</label>
+	    <input type="date"
+	           name="dataConfInicio"
+	           th:value="${#temporals.format(dataConfInicio,'yyyy-MM-dd')}"
+	           class="campo-data" />
+	    <span class="entre">a</span>
+	    <input type="date"
+	           name="dataConfFim"
+	           th:value="${#temporals.format(dataConfFim,'yyyy-MM-dd')}"
+	           class="campo-data" />
+	  </div>
+
+	  <!-- 3ª linha: Período de Viagem -->
+	  <div class="filtro-linha">
+	    <label>Período de Viagem</label>
+	    <input type="date"
+	           name="perInicio"
+	           th:value="${#temporals.format(perInicio,'yyyy-MM-dd')}"
+	           class="campo-data" />
+	    <span class="entre">a</span>
+	    <input type="date"
+	           name="perFim"
+	           th:value="${#temporals.format(perFim,'yyyy-MM-dd')}"
+	           class="campo-data" />
+
+ 	    <!-- Botões -->
+	    <div class="filtro-linha botoes">
+	       <span>   </span>
+	       <span>   </span>
+	       <button type="submit" class="confirmar">Filtrar</button>
+	       <a th:href="@{/contratacao/historico}" class="cancelar">Limpar</a>
+	    </div>
+	  </div>
+	</form>
 	
 	
     <table>
@@ -106,5 +167,36 @@
       }
     });
   </script>
+  
+  <script th:inline="javascript">
+  /*<![CDATA[*/
+    const listCli = document.getElementById('clientes-list'),
+          inpCli  = document.getElementById('filtroCliente'),
+          urlCli  = /*[[@{/clientes/sugerir}]]*/ '';
+
+    let toCli = null;
+    inpCli.addEventListener('input', () => {
+      clearTimeout(toCli);
+      const prefix = inpCli.value.trim();
+      if (!prefix) {
+        listCli.innerHTML = '';
+        return;
+      }
+      toCli = setTimeout(() => {
+        fetch(urlCli+'?prefix='+encodeURIComponent(prefix))
+          .then(r=>r.ok?r.json():[])
+          .then(names=>{
+            listCli.innerHTML = '';
+            names.forEach(n=>{
+              const opt=document.createElement('option');
+              opt.value=n;
+              listCli.appendChild(opt);
+            });
+          });
+      },300);
+    });
+  /*]]>*/
+  </script>
+  
 </body>
 </html>
