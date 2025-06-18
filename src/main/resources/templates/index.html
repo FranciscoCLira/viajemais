@@ -20,6 +20,57 @@
         <h1>Viaje Mais - Seu sonho começa aqui</h1>
     </div>
 
+    <form th:action="@{/}" method="get"
+	    style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+		<!-- autocomplete por destino -->
+		<div class="form-group">
+		  <label for="destinoFiltro">Destino</label>
+		  <input type="text"
+		         id="destinoFiltro"
+		         name="destinoNome"
+		         list="destinos-list"
+		         th:value="${filtroDestino}"
+		         placeholder="digite para buscar..."
+		         autocomplete="off"
+		         class="campo-nome" />
+		  <datalist id="destinos-list"></datalist>
+		</div>
+		
+		<!-- filtro por categoria -->
+		<div class="form-group">
+		  <label for="categoriaFiltro">Categoria</label>
+		  <select id="categoriaFiltro" name="categoria">
+		    <option value="" th:selected="${filtroCategoria == null}">
+		      — Todas —
+		    </option>
+		    <option th:each="cat : ${categorias}"
+		            th:value="${cat.nome}"
+		            th:text="${cat.nome}"
+		            th:selected="${cat.nome == filtroCategoria}">
+		    </option>
+		  </select>
+		</div>
+		
+		<!-- filtro por preço até -->
+		  <div class="form-group">
+		    <label for="precoMaxFiltro">Preço até (R$)</label>
+		    <input type="number"
+		           id="precoMaxFiltro"
+		           name="precoMax"
+		           min="0"
+		           th:value="${filtroPrecoMax != null ? filtroPrecoMax.longValue() : ''}"
+		           placeholder="ex: 5 000"
+		           class="campo-quantidade" />
+		</div>
+		
+		<div style="align-self:flex-end; display:flex; gap:0.5rem;">
+		  <button type="submit" class="confirmar">Filtrar</button>
+		  <a th:href="@{ / }" class="cancelar">Limpar</a>
+		</div>
+	</form>
+    
+    
+    
     <!-- Menu horizontal centralizado -->
     <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
         <a th:href="@{/clientes/novo}" class="botao-cadastro">Cadastrar Cliente</a>
@@ -80,5 +131,37 @@
     }
   });
 </script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+  const list = document.getElementById('destinos-list'),
+        input = document.getElementById('destinoFiltro'),
+        url   = /*[[@{/destinos/sugerir}]]*/ '';
+
+  let timeout = null;
+  input.addEventListener('input', () => {
+    clearTimeout(timeout);
+    const prefix = input.value.trim();
+    if (!prefix) {
+      list.innerHTML = '';
+      return;
+    }
+    timeout = setTimeout(() => {
+      fetch(url + '?prefix=' + encodeURIComponent(prefix))
+        .then(r => r.ok ? r.json() : [])
+        .then(names => {
+          list.innerHTML = '';
+          names.forEach(n => {
+            const opt = document.createElement('option');
+            opt.value = n;
+            list.appendChild(opt);
+          });
+        });
+    }, 300);
+  });
+/*]]>*/
+</script>
+
+
 </body>
 </html>

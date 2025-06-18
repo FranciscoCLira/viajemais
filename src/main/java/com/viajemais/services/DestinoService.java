@@ -24,6 +24,37 @@ public class DestinoService {
         this.itemRepo = itemRepo;
     }
 
+
+    public List<String> sugerirNomesList(String prefix) {
+    	  return repo.findByLocalContainingIgnoreCase(prefix)
+    	             .stream().map(Destino::getLocal).toList();
+    }
+    
+    
+    /** Busca geral com filtros opcionais */
+    public List<Destino> buscarComFiltro(String nome,
+                                         String categoria,
+                                         Double precoMax) {
+        return repo.findAll().stream()
+            .filter(d -> nome == null || nome.isBlank()
+                         || d.getLocal()
+                             .toLowerCase()
+                             .startsWith(nome.toLowerCase()))
+            .filter(d -> categoria == null || categoria.isBlank()
+                         || d.getCategoria().getNome().equals(categoria))
+            .filter(d -> precoMax == null
+                         || d.getPreco() <= precoMax)
+            .toList();
+    }
+
+    /** Lista só os nomes para autocomplete */
+    public List<String> sugerirNomes(String prefix) {
+        return repo.findByLocalStartingWithIgnoreCase(prefix).stream()
+                   .map(Destino::getLocal)
+                   .toList();
+    }
+    
+    
     /** Só pode excluir se não houver nenhum item de contratação deste destino */
     public boolean podeExcluir(Long destinoId) {
         // nota: existsByDestinoId retorna true quando HÁ referências,
