@@ -31,29 +31,51 @@ public class DestinoService {
     }
     
     
-    /** Busca geral com filtros opcionais */
+    /** Filtro combinado, aceita qualquer 0–3 critérios */
     public List<Destino> buscarComFiltro(String nome,
                                          String categoria,
                                          Double precoMax) {
-        return repo.findAll().stream()
-            .filter(d -> nome == null || nome.isBlank()
-                         || d.getLocal()
-                             .toLowerCase()
-                             .startsWith(nome.toLowerCase()))
-            .filter(d -> categoria == null || categoria.isBlank()
-                         || d.getCategoria().getNome().equals(categoria))
-            .filter(d -> precoMax == null
-                         || d.getPreco() <= precoMax)
-            .toList();
+        boolean fNome = nome != null && !nome.isBlank();
+        boolean fCat  = categoria != null && !categoria.isBlank();
+        boolean fPrice= precoMax != null && precoMax >= 0;
+
+        if (fNome && fCat && fPrice) {
+            return repo.findByCategoriaNomeAndPrecoLessThanEqual(categoria, precoMax)
+                       .stream()
+                       .filter(d -> d.getLocal()
+                                     .toLowerCase()
+                                     .contains(nome.toLowerCase()))
+                       .toList();
+        } else if (fCat && fPrice) {
+            return repo.findByCategoriaNomeAndPrecoLessThanEqual(categoria, precoMax);
+        } else if (fNome && fCat) {
+            return repo.findByLocalStartingWithIgnoreCase(nome)
+                       .stream()
+                       .filter(d -> d.getCategoria().getNome().equals(categoria))
+                       .toList();
+        } else if (fNome && fPrice) {
+            return repo.findByLocalStartingWithIgnoreCase(nome)
+                       .stream()
+                       .filter(d -> d.getPreco() <= precoMax)
+                       .toList();
+        } else if (fNome) {
+            return repo.findByLocalStartingWithIgnoreCase(nome);
+        } else if (fCat) {
+            return repo.findByCategoriaNome(categoria);
+        } else if (fPrice) {
+            return repo.findByPrecoLessThanEqual(precoMax);
+        } else {
+            return repo.findAll();
+        }
     }
 
-    /** Lista só os nomes para autocomplete */
+    /** Autocomplete de nomes para o filtro “Destino” */
     public List<String> sugerirNomes(String prefix) {
-        return repo.findByLocalStartingWithIgnoreCase(prefix).stream()
+        return repo.findByLocalStartingWithIgnoreCase(prefix)
+                   .stream()
                    .map(Destino::getLocal)
                    .toList();
-    }
-    
+    }    
     
     /** Só pode excluir se não houver nenhum item de contratação deste destino */
     public boolean podeExcluir(Long destinoId) {

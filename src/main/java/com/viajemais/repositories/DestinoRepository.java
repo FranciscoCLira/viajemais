@@ -14,5 +14,10 @@ public interface DestinoRepository extends JpaRepository<Destino, Long> {
     // percorre o objeto: campoCategoria.nome
     List<Destino> findByCategoriaNomeIgnoreCase(String nomeCategoria);
     
-    List<Destino> findByLocalContainingIgnoreCase(String substring);    
+    List<Destino> findByLocalContainingIgnoreCase(String substring);
+    
+ // filtros
+    List<Destino> findByCategoriaNome(String categoriaNome);
+    List<Destino> findByPrecoLessThanEqual(Double precoMax);
+    List<Destino> findByCategoriaNomeAndPrecoLessThanEqual(String cat, Double precoMax);
 }

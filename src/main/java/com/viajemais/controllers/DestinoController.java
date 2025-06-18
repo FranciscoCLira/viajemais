@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
@@ -37,11 +39,60 @@ public class DestinoController {
         this.categoriaService = categoriaService;
     }
     
+
+    /** Autocomplete de destino */
+    @GetMapping("/sugerir")
+    @ResponseBody
+    public List<String> sugerirDestino(@RequestParam String prefix) {
+        return destinoService.sugerirNomes(prefix);
+    }
+
+    /**
+     * Lista com filtros opcionais.
+     * Se nenhum filtro for passado, retorna tudo.
+     */    
+    
+    /** Lista com filtros (GET /destinos) */
+    @GetMapping
+    public String listar(
+            @RequestParam(required = false) String destinoNome,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) Double precoMax,
+            Model model) {
+
+        // 1) lista de categorias para o filtro
+        model.addAttribute("categorias",
+                           categoriaService.listarTodas());
+
+        // 2) busca a lista de destinos já filtrada
+        List<Destino> destinos = 
+            destinoService.buscarComFiltro(destinoNome, categoria, precoMax);
+        model.addAttribute("destinos", destinos);
+
+        // 3) monta o map de quem pode excluir
+        Map<Long,Boolean> podeExcluirMap = new HashMap<>();
+        for (Destino d : destinos) {
+            podeExcluirMap.put(d.getId(),
+                               destinoService.podeExcluir(d.getId()));
+        }
+        model.addAttribute("podeExcluirMap", podeExcluirMap);
+
+        // 3) reaplica valores dos filtros no formulário
+        model.addAttribute("filtroDestino",   destinoNome);
+        model.addAttribute("filtroCategoria", categoria);
+        model.addAttribute("filtroPrecoMax",  precoMax);
+
+        return "destinos";
+    }
+    
+    
     @GetMapping("/categorias")
     public String listarCategorias(Model model) {
         model.addAttribute("categorias", categoriaService.listarTodas());
         return "categorias";
     }
+
+    // ... os outros endpoints de CRUD (novo, criar, editar, excluir) seguem iguais ...    
     
     /** Formulário de criação (GET /destinos/novo) */
     @GetMapping("/novo")
@@ -164,24 +215,24 @@ public class DestinoController {
     }
 
     /** Lista todos (GET  /destinos) */
-    @GetMapping
-    public String listar(Model model,
-                         @ModelAttribute("erroExclusao") String erroExclusao,
-                         @ModelAttribute("sucesso") String sucesso) {
-        List<Destino> destinos = destinoService.listarTodos();
-
-        // construímos um map de ID → podeExcluir
-        Map<Long, Boolean> podeExcluirMap = new HashMap <>();
-        for (Destino d : destinos) {
-            podeExcluirMap.put(d.getId(), destinoService.podeExcluir(d.getId()));
-        }
-
-        model.addAttribute("destinos", destinos);
-        model.addAttribute("podeExcluirMap", podeExcluirMap);
-        model.addAttribute("erroExclusao", erroExclusao);
-        model.addAttribute("sucesso", sucesso);
-        return "destinos";
-    }    
+//    @GetMapping
+//    public String listar(Model model,
+//                         @ModelAttribute("erroExclusao") String erroExclusao,
+//                         @ModelAttribute("sucesso") String sucesso) {
+//        List<Destino> destinos = destinoService.listarTodos();
+//
+//        // construímos um map de ID → podeExcluir
+//        Map<Long, Boolean> podeExcluirMap = new HashMap <>();
+//        for (Destino d : destinos) {
+//            podeExcluirMap.put(d.getId(), destinoService.podeExcluir(d.getId()));
+//        }
+//
+//        model.addAttribute("destinos", destinos);
+//        model.addAttribute("podeExcluirMap", podeExcluirMap);
+//        model.addAttribute("erroExclusao", erroExclusao);
+//        model.addAttribute("sucesso", sucesso);
+//        return "destinos";
+//    }    
     
     
 	/*

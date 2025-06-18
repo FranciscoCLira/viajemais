@@ -1,19 +1,16 @@
 package com.viajemais.controllers;
 // listar destinos e pagina inicial
 
-import com.viajemais.config.StrictDoubleFormatter;
 import com.viajemais.entities.Destino;
 import com.viajemais.services.CategoriaService;
 import com.viajemais.services.DestinoService;
 
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.text.ParseException;
 import java.util.List;
 
 @Controller
@@ -58,9 +55,9 @@ public class HomeController {
 
     
     /** Endpoint para autocomplete de destinos */
-    @GetMapping("/destinos/sugerir")
-    @ResponseBody
-    public List<String> sugerirDestino(@RequestParam String prefix) {
-        return destinoService.sugerirNomes(prefix);
-    }
+//    @GetMapping("/destinos/sugerir")
+//    @ResponseBody
+//    public List<String> sugerirDestino(@RequestParam String prefix) {
+//        return destinoService.sugerirNomes(prefix);
+//    }
 }

@@ -19,6 +19,15 @@
     <div style="text-align: center; margin-bottom: 1rem;">
         <h1>Viaje Mais - Seu sonho começa aqui</h1>
     </div>
+    
+    <!-- Menu horizontal centralizado -->
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+        <a th:href="@{/clientes/novo}" class="botao-cadastro">Cadastrar Cliente</a>
+        <a href="#" class="confirmar" onclick="return contratarSelecionados()">Contratar Selecionados</a>
+        <a th:href="@{/contratacao/historico}" class="botao-historico">Histórico de Contratações</a>
+        <a th:href="@{/destinos}" class="botao-destinos">Destinos</a>
+    </div>
+
 
     <form th:action="@{/}" method="get"
 	    style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
@@ -70,15 +79,6 @@
 	</form>
     
     
-    
-    <!-- Menu horizontal centralizado -->
-    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
-        <a th:href="@{/clientes/novo}" class="botao-cadastro">Cadastrar Cliente</a>
-        <a href="#" class="confirmar" onclick="return contratarSelecionados()">Contratar Selecionados</a>
-        <a th:href="@{/contratacao/historico}" class="botao-historico">Histórico de Contratações</a>
-        <a th:href="@{/destinos}" class="botao-destinos">Destinos</a>
-    </div>
-
     <!-- Lista de destinos -->
     <form id="destinos" th:action="@{/contratacao/selecionar}" method="post">
         <div th:each="destino : ${destinos}" class="destino">
