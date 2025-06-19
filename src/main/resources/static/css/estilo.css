@@ -19,7 +19,7 @@ h1, h2, h3 {
 }
 
 form {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 input[type="text"],
@@ -28,7 +28,7 @@ input[type="date"],
 select {
     width: 100%;
     padding: 10px;
-    margin: 8px 0 16px 0;
+/*    margin: 8px 0 16px 0; */
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
@@ -248,7 +248,7 @@ label {
 }
 
 .filtro-linha .campo-data {
-  width: 160px;
+  width: 140px;
 }
 
 .filtro-linha .entre {
@@ -259,4 +259,18 @@ label {
   justify-content: flex-start;
   gap: 1rem;
   margin-top: 0.5rem;
+}
+
+/* edição bem-sucedida = verde */
+.mensagem-alteracao {
+  color: #28a745;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* exclusão bem-sucedida ou erros de exclusão = vermelho */
+.mensagem-exclusao {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }

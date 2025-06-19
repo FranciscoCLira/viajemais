@@ -84,16 +84,21 @@
 		  <button type="submit" class="confirmar">Salvar</button>
 		
 		  <!-- Cancelar segue ao lado -->
-		  <a th:href="@{/contratacao/historico}" class="cancelar">Cancelar</a>
-		
+		  <a th:href="@{/contratacao/historico( 
+                         filtroCliente=${filtroCliente} )}" 
+		  	 class="cancelar">
+			 Cancelar
+	      </a>
+						  
 		  <!-- Excluir, apenas se permitido -->
-		  <a th:href="@{/contratacao/excluir/{id}(id=${contratacao.id})}"
+		  <a th:if="${permitirExclusao}"
+		     th:href="@{/contratacao/excluir/{id}(id=${contratacao.id}, 
+		                                  filtroCliente=${filtroCliente})}"
 		     class="cancelar"
-		     th:if="${permitirExclusao}"
 		     onclick="return confirm('Confirma exclusão?');">
-		    Excluir
+		     Excluir
 		  </a>
-      </div>
+     </div>
     </form>
   </div>
 </body>

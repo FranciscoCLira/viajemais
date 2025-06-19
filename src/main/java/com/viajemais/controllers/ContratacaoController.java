@@ -74,7 +74,8 @@ public class ContratacaoController {
             @RequestParam int quantidadePessoas,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodoInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodoFim,
-            Model model) {
+            Model model,
+        	RedirectAttributes ra) {
 
         boolean hasErrors = false;
         LocalDate hoje = LocalDate.now();
@@ -149,6 +150,8 @@ public class ContratacaoController {
                 itemContratacaoService.salvar(item);
             }
         }
+        // Depois de salvar tudo, adiciona o nome do cliente como query-param:
+        ra.addAttribute("filtroCliente", nomeCliente);
         return "redirect:/contratacao/historico";
     }
     
@@ -173,14 +176,14 @@ public class ContratacaoController {
                @DateTimeFormat(pattern="dd/MM/yyyy") LocalDate perFim,
             Model model) {
 
-        // Sempre repomos os valores dos filtros (para o formulário “grudar” neles)
+        // 1) mantém os filtros no model
         model.addAttribute("filtroCliente",   filtroCliente);
         model.addAttribute("dataConfInicio",  dataConfInicio);
         model.addAttribute("dataConfFim",     dataConfFim);
         model.addAttribute("perInicio",       perInicio);
         model.addAttribute("perFim",          perFim);
 
-        // Mensagens de validação de data (se ambas datas estiverem informadas)
+        // 2) validação das datas (igual ao que você já fez)
         boolean hasErrors = false;
         if (dataConfInicio != null && dataConfFim != null
             && dataConfFim.isBefore(dataConfInicio)) {
@@ -194,44 +197,51 @@ public class ContratacaoController {
                 "Data de término do período não pode ser anterior à data de início");
             hasErrors = true;
         }
-        if (hasErrors) {
-            // lista e mapa vazios
+
+        // 3) se erro ou nenhum filtro → lista vazia + map vazio
+        if (hasErrors ||
+            ((filtroCliente == null || filtroCliente.isBlank()) &&
+             dataConfInicio  == null &&
+             dataConfFim     == null &&
+             perInicio       == null &&
+             perFim          == null)) {
+
             model.addAttribute("contratacoes", List.<Contratacao>of());
             model.addAttribute("podeExcluirMap", Map.<Long,Boolean>of());
             return "contratacao-lista";
         }
 
-        // Se **nenhum** filtro estiver setado, não buscamos nada (tela inicia vazia)
-        boolean nenhumFiltro = 
-           (filtroCliente == null || filtroCliente.isBlank()) &&
-           dataConfInicio  == null &&
-           dataConfFim     == null &&
-           perInicio       == null &&
-           perFim          == null;
-        if (nenhumFiltro) {
-            model.addAttribute("contratacoes", List.<Contratacao>of());
-            model.addAttribute("podeExcluirMap", Map.<Long,Boolean>of());
-            return "contratacao-lista";
-        }
-
-        // Caso contrário, aplica os filtros normalmente
+        // 4) busca filtrada
         List<Contratacao> lista = contratacaoService.buscarComFiltro(
             filtroCliente, dataConfInicio, dataConfFim, perInicio, perFim);
 
-        // —> aqui entra seu código atual de calcular diárias, total, itens…
+        // 5) **aqui reaplica todo o cálculo de diárias, itens e totais**
         for (Contratacao c : lista) {
+            // quantas diárias
             long diff = ChronoUnit.DAYS.between(c.getPeriodoInicio(), c.getPeriodoFim());
             long diarias = diff == 0 ? 1 : diff;
             c.setQuantidadeDiarias(diarias);
-            // calcula itens e total…
+
+            // busca itens e calcula valorDestino e totalViagem
+            List<ItemContratacao> itens = itemContratacaoService
+                                             .buscarItensPorContratacao(c.getId());
+            double total = 0;
+            for (ItemContratacao item : itens) {
+                double valor = item.getPrecoUnitario() * diarias * c.getQuantidadePessoas();
+                item.setValorDestino(valor);
+                total += valor;
+            }
+            c.setItens(itens);
+            c.setTotalViagem(total);
         }
 
-        // Prepara o map de exclusão
+        // 6) monta mapa de exclusão
         Map<Long,Boolean> podeExcluirMap = new HashMap<>();
         for (Contratacao c : lista) {
             podeExcluirMap.put(c.getId(), contratacaoService.canExcluir(c.getId()));
         }
 
+        // 7) joga tudo no model
         model.addAttribute("contratacoes", lista);
         model.addAttribute("podeExcluirMap", podeExcluirMap);
 
@@ -249,11 +259,26 @@ public class ContratacaoController {
     /** Exibe o formulário de edição de período e quantidade */
     
     @GetMapping("/editar/{id}")
-    public String editarContratacao(@PathVariable Long id, Model model) {
+    public String editarContratacao(
+    		@PathVariable Long id,
+    		@RequestParam(required = false) String filtroCliente,
+    		Model model) {
+    	
         Contratacao c = contratacaoService.buscarPorId(id)
             .orElseThrow(() -> new IllegalArgumentException("Não encontrado: " + id));
         model.addAttribute("contratacao", c);
+        
+        // flags de permissão (sua lógica atual) …
         model.addAttribute("editar", true);
+        
+        LocalDate hoje = LocalDate.now();
+        boolean permit = !c.getPeriodoInicio().isBefore(hoje) 
+                      && !c.getPeriodoFim().isBefore(hoje);
+        model.addAttribute("permitirAlteracao", permit);
+        model.addAttribute("permitirExclusao", permit);
+
+        // **repassa o filtroCliente de volta**
+        model.addAttribute("filtroCliente", filtroCliente);        
 
         return "contratacao-edit";
     }
@@ -263,7 +288,8 @@ public class ContratacaoController {
     public String salvarEdicao(
             @Valid @ModelAttribute("contratacao") Contratacao contratacao,
             BindingResult binding,
-            Model model) {
+            Model model,
+            RedirectAttributes ra)  {
 
         LocalDate hoje = LocalDate.now();
 
@@ -295,22 +321,44 @@ public class ContratacaoController {
         // nomeCliente, dataCadastro e itens permanecem inalterados
 
         contratacaoService.salvar(existente);
+        ra.addFlashAttribute("sucessoAlteracao",
+          String.format("Viagem alterada com sucesso. (#%d – %s)",
+                        contratacao.getId(),
+                        contratacao.getNomeCliente()));        
+        
+        // adiciona o filtroCliente ao redirect:
+        ra.addAttribute("filtroCliente", contratacao.getNomeCliente());
+        
         return "redirect:/contratacao/historico";
     }
 
     /** Exclui a contratação, só se permitida (datas ≥ hoje) */
     @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id, RedirectAttributes ra) {
-        try {
-            contratacaoService.excluir(id);
-            ra.addFlashAttribute("sucesso",
-              "Contratação excluída com sucesso.");
-        } catch (DataIntegrityViolationException e) {
-            ra.addFlashAttribute("erroExclusao",
-              "Só é possível excluir viagens cujo início seja futuro.");
+    public String excluirContratacao(
+            @PathVariable Long id,
+            @RequestParam(required = false) String filtroCliente,
+            RedirectAttributes ra) {
+
+        Contratacao c = contratacaoService.buscarPorId(id).orElse(null);
+        if (c != null) {
+            LocalDate hoje = LocalDate.now();
+            if (!c.getPeriodoInicio().isBefore(hoje) &&
+                !c.getPeriodoFim().isBefore(hoje)) {
+                contratacaoService.excluir(id);
+                // inclui id e nomeCliente na mensagem:
+                ra.addFlashAttribute("sucessoExclusao",
+                  String.format("Viagem excluída com sucesso. (#%d – %s)", 
+                                c.getId(), c.getNomeCliente()));
+            } else {
+                ra.addFlashAttribute("erroExclusao",
+                    "Só é possível excluir viagens ainda não iniciadas.");
+            }
         }
+        // mantém o filtro do cliente
+        ra.addAttribute("filtroCliente", filtroCliente);
         return "redirect:/contratacao/historico";
     }
+
     
     @InitBinder
     public void initBinder(WebDataBinder binder) {
