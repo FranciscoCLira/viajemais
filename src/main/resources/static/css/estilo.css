@@ -262,6 +262,7 @@ label {
 }
 
 /* contratação bem-sucedida = verde */
+/* criação bem-sucedida = verde */
 /* edição bem-sucedida = verde */
 .mensagem-criacao,
 .mensagem-alteracao {
@@ -270,6 +271,7 @@ label {
   margin-bottom: 1rem;
 }
 
+/* erro de duplicação / não previsto = vermelho */
 /* exclusão bem-sucedida ou erros de exclusão = vermelho */
 .mensagem-exclusao,
 .erro {

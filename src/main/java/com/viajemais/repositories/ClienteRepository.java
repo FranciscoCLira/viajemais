@@ -1,6 +1,7 @@
 package com.viajemais.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     boolean existsByCodCliente(Integer codCliente);
     
     boolean existsByNomeCliente(String nomeCliente);
+    
+    Optional<Cliente> findByNomeCliente(String nomeCliente);
     
     List<Cliente> findByNomeClienteStartingWithIgnoreCase(String prefix);
 

@@ -57,4 +57,8 @@ public class ClienteService {
     public boolean existsByNomeCliente(String nomeCliente) {
         return clienteRepository.existsByNomeCliente(nomeCliente);
     }
+
+    public Optional<Cliente> buscarPorNome(String nome) {
+        return clienteRepository.findByNomeCliente(nome);
+    }
 }

@@ -10,6 +10,20 @@
         <!-- Título dinâmico -->
         <h1 th:text="${editar} ? 'Editar Cliente' : 'Novo Cliente'">Novo Cliente</h1>
 
+        
+        <!-- sucesso -->
+        <div th:if="${sucessoCadastro}" class="mensagem-criacao"
+             th:text="${sucessoCadastro}"></div>
+
+        <!-- erro de duplicação -->
+        <div th:if="${erroDuplicado}" class="mensagem-exclusao"
+             th:text="${erroDuplicado}"></div>
+
+        <!-- outros erros não previstos -->
+        <div th:if="${erroNaoPrevisto}" class="mensagem-exclusao"
+             th:text="${erroNaoPrevisto}"></div>        
+        
+             
         <!-- Formulário -->
         <form th:action="@{/clientes/salvar}" th:object="${cliente}" method="post">
             <!-- Indica se é edição ou criação -->

@@ -1,6 +1,8 @@
 package com.viajemais.controllers;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.viajemais.entities.Cliente;
 import com.viajemais.services.ClienteService;
@@ -59,29 +62,70 @@ public class ClienteController {
     @PostMapping("/salvar")
     public String salvarCliente(
             @Valid @ModelAttribute("cliente") Cliente cliente,
-            BindingResult result,
-            @RequestParam(value = "editar", defaultValue = "false") boolean editar,
+            // @RequestParam(value = "editar", defaultValue = "false") boolean editar,
+            BindingResult binding,
+            RedirectAttributes ra,            
             Model model) {
 
         // Se houver erro de validação (nome, tamanho, pattern etc.), volta ao formulário
-        if (result.hasErrors()) {
-            model.addAttribute("editar", editar);
+    	// 1) validações de Bean Validation (@NotBlank, etc.)
+        if (binding.hasErrors()) {
+            // model.addAttribute("editar", editar);
+            // volta ao formulário mostrando erros de campo
             return "cliente-form";
         }
+        
+        boolean novo = (cliente.getId() == null);
 
         try {
-            // O próprio ClienteService cuida de: 
-            // • auto-increment de codCliente (se id == null)  
-            // • colocar dataCadastro (dentro de salvar(...) quando id == null)  
-            // • verificação de unicidade de nome (lança DataIntegrityViolationException)
-            clienteService.salvar(cliente);
-        } catch (DataIntegrityViolationException e) {
-            model.addAttribute("erroNome", e.getMessage());
-            model.addAttribute("editar", editar);
-            return "cliente-form";
-        }
+            if (novo) {
+                cliente.setDataCadastro(LocalDate.now());
+            }
+            Cliente salvo = clienteService.salvar(cliente);
 
-        return "redirect:/clientes";
+            // 2) mensagem de sucesso em flash
+            ra.addFlashAttribute("sucessoCadastro",
+                String.format("Cliente cadastrado com sucesso: #%d – %s",
+                              salvo.getCodCliente(),
+                              salvo.getNomeCliente()));
+            return "redirect:/clientes/novo";
+
+        } catch (DataIntegrityViolationException ex) {
+            // 3) cliente duplicado?
+            Optional<Cliente> existente = clienteService.buscarPorNome(cliente.getNomeCliente());
+            if (existente.isPresent()) {
+                Cliente c = existente.get();
+                model.addAttribute("erroDuplicado",
+                    String.format("Erro. Cliente já cadastrado: #%d – %s",
+                                  c.getCodCliente(),
+                                  c.getNomeCliente()));
+            } else {
+                // 4) qualquer outro DataIntegrity
+                model.addAttribute("erroNaoPrevisto",
+                    "Erro não previsto pelo sistema.");
+            }
+            // Reexibe o form com a mensagem de erro
+            return "cliente-form";
+        } catch (Exception ex) {
+            model.addAttribute("erroNaoPrevisto",
+                "Erro não previsto pelo sistema.");
+            return "cliente-form";
+        }       
+        
+//      logica antes de implementar as mensagens acima 
+//        try {
+//            // O próprio ClienteService cuida de: 
+//            // • auto-increment de codCliente (se id == null)  
+//            // • colocar dataCadastro (dentro de salvar(...) quando id == null)  
+//            // • verificação de unicidade de nome (lança DataIntegrityViolationException)
+//            clienteService.salvar(cliente);
+//        } catch (DataIntegrityViolationException e) {
+//            model.addAttribute("erroNome", e.getMessage());
+//            model.addAttribute("editar", editar);
+//            return "cliente-form";
+//        }
+//
+//        return "redirect:/clientes";
     }
 
     // 5) EXCLUIR CLIENTE (só se não estiver ativo — condicional na view)
