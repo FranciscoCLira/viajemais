@@ -130,7 +130,7 @@ public class ContratacaoController {
             return "contratacao-form";
         }
 
-        // Sem erros, cria a Contratacao
+        // Sem erros, cria a Contratacao - persiste a Contratacao e os Itens…
         Contratacao c = new Contratacao();
         c.setNomeCliente(nomeCliente);
         c.setPeriodoInicio(periodoInicio);
@@ -139,7 +139,7 @@ public class ContratacaoController {
         c.setData(LocalDate.now());
         contratacaoService.salvar(c);
 
-        // Itens da contratação...
+        // Itens da contratação...  salva os itens 
         for (Long id : destinos) {
             Destino dest = destinoService.buscarPorId(id);
             if (dest != null) {
@@ -150,6 +150,13 @@ public class ContratacaoController {
                 itemContratacaoService.salvar(item);
             }
         }
+        
+        // **adiciona a mensagem de sucesso**  
+        ra.addFlashAttribute("sucessoCriacao",
+          String.format("Viagem contratada com sucesso: #%d – %s",
+                        c.getId(),
+                        c.getNomeCliente()));
+        
         // Depois de salvar tudo, adiciona o nome do cliente como query-param:
         ra.addAttribute("filtroCliente", nomeCliente);
         return "redirect:/contratacao/historico";

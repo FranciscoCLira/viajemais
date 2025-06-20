@@ -261,7 +261,9 @@ label {
   margin-top: 0.5rem;
 }
 
+/* contratação bem-sucedida = verde */
 /* edição bem-sucedida = verde */
+.mensagem-criacao,
 .mensagem-alteracao {
   color: #28a745;
   font-weight: bold;

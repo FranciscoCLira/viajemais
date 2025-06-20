@@ -18,6 +18,11 @@
         </button>
 	</div>
 
+	<!-- Mensagem de criação (verde) -->
+	<div th:if="${sucessoCriacao}" class="mensagem-criacao"
+	     th:text="${sucessoCriacao}">
+	</div>
+	
 	<div th:if="${sucessoAlteracao}" class="mensagem-alteracao"
     th:text="${sucessoAlteracao}"></div>
 
