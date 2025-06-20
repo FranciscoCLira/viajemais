@@ -1,39 +1,45 @@
-%%{init:{"securityLevel":"loose","flowchart":{"htmlLabels":true,"rankdir":"LR"}}}%%
 erDiagram
-CLIENTE ||--o{ CONTRATACAO : realiza
-CONTRATACAO ||--o{ ITEM_CONTRATACAO : inclui
-ITEM_CONTRATACAO }o--|| DESTINO : aponta_para
-DESTINO }o--|| CATEGORIA : classificado_em
+    direction LR
+
+CLIENTE ||--o{ CONTRATACAO        : "realiza"
+CONTRATACAO ||--o{ ITEM_CONTRATACAO : "inclui"
+ITEM_CONTRATACAO }o--|| DESTINO        : "aponta para"
+DESTINO }o--|| CATEGORIA          : "classificado em"
+
 CLIENTE {
-    int    id PK
-    date   dataCadastro
-    string nomeCliente
-    string situacaoCliente
+    int     id               PK
+    date    dataCadastro
+    varchar nomeCliente
+    char    situacaoCliente
 }
+
 CATEGORIA {
-    int    id PK
-    string nome
-    string situacaoCategoria
-    date   data
+    int     id               PK
+    varchar nome            
+    char    situacaoCategoria
+    date    dataCategoria
 }
+ 
 DESTINO {
-    int    id PK
-    string local
-    float  preco
-    string imagemUrl
-    int    categoriaId
+    int     id               PK
+    varchar local           
+    double  preco
+    varchar imagemUrl
+    int     categoria_id     FK
 }
+
 CONTRATACAO {
-    int    id PK
-    string nomeCliente
-    date   data
-    date   periodoInicio
-    date   periodoFim
-    int    quantidadePessoas
+    int     id               PK
+    varchar nomeCliente
+    date    data
+    date    periodoInicio
+    date    periodoFim
+    int     quantidadePessoas
 }
+
 ITEM_CONTRATACAO {
-    int    id PK
-    int    contratacaoId
-    int    destinoId
-    float  precoUnitario
+    int     id               PK
+    int     idContratacao    FK
+    int     idDestino        FK
+    double  precoUnitario
 }

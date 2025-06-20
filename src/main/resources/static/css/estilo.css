@@ -269,8 +269,11 @@ label {
 }
 
 /* exclusão bem-sucedida ou erros de exclusão = vermelho */
-.mensagem-exclusao {
+.mensagem-exclusao,
+.erro {
   color: #e74c3c;
   font-weight: bold;
   margin-bottom: 1rem;
 }
+
+

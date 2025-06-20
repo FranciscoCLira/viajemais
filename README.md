@@ -37,9 +37,13 @@
   - Sequences reiniciáveis para IDs começando em 1.
 
 # 
-## Modelo ERD
+## Modelo de Dados (ERD)
     Gerado via https://mermaid.live com src/main/resources/static/docs/viajemais.mmd 
-![ERD](assets/01A0-Diagrama80.png))
+![ERD](assets/01A0-Diagrama.png)
+##  
+![ERD](assets/01A0-Diagrama.jpg)
+##  
+![ERD](assets/01A0-Diagrama80.png)
  
 # 
 ## Tecnologias
@@ -67,65 +71,65 @@
 ## Páginas web principais e IDE 
 
 ##### IDE - restart app localHost 
-![IDE-STS4](assets/01A1-IDE-STS-4.png))
+![IDE-STS4](assets/01A1-IDE-STS-4.png)
 
 ##### Home e Selecinar Viagens 
-![Home](assets/01B1-Home.jpg))
+![Home](assets/01B1-Home.jpg)
 
 ##### Confirmação de Viagem 
-![ConfirmacaoViagem](assets/01B2-ConfirmacaoViagem.jpg))
+![ConfirmacaoViagem](assets/01B2-ConfirmacaoViagem.jpg)
 
 ##### Histórico de Contratações  
-![HistoricoContratacoes](assets/01B3-HistoricoContratacoes.jpg))
+![HistoricoContratacoes](assets/01B3-HistoricoContratacoes.jpg)
 
 ##### Editar Contratação 
-![EditarContratacao](assets/01B4-EditarContratacao.jpg))
+![EditarContratacao](assets/01B4-EditarContratacao.jpg)
 
 ##### Excluir Contratação 
-![ExcluirContratacao](assets/01B5-ExcluirContratacao.jpg))
+![ExcluirContratacao](assets/01B5-ExcluirContratacao.jpg)
 
 ##### Categorias
-![Categorias](assets/01C1-Categorias.jpg))
+![Categorias](assets/01C1-Categorias.jpg)
 
 ##### Nova Categoria
-![NovaCategoria](assets/01C2-NovaCategoria.jpg))
+![NovaCategoria](assets/01C2-NovaCategoria.jpg)
 
 ##### Editar Categorias
-![EditarCategorias](assets/01C3-EditarCategoria.jpg))
+![EditarCategorias](assets/01C3-EditarCategoria.jpg)
 
 ##### Destinos
 ![Destinos](assets/01D1-Destinos.jpg))
 
 ##### Novo Destino
-![NovoDestino](assets/01D2-NovoDestino.jpg))
+![NovoDestino](assets/01D2-NovoDestino.jpg)
 
 ##### Editar Destino
-![EditarDestino](assets/01D3-EditarDestino.jpg))
+![EditarDestino](assets/01D3-EditarDestino.jpg)
 
 ##### Novo Cliente
-![NovoCliente](assets/01E1-NovoCliente.jpg))
+![NovoCliente](assets/01E1-NovoCliente.jpg)
 
 ##### Clientes Cadastrados 
-![Clientes](assets/01E2-ClientesCadastrados.jpg))
+![Clientes](assets/01E2-ClientesCadastrados.jpg)
 
 
 # 
 ## DB H2: 
 
 ##### CLIENTE 
-![Cliente](assets/H2-01-Cliente.jpg))
+![Cliente](assets/H2-01-Cliente.jpg)
 
 ##### CATEGORIA 
-![Categoria](assets/H2-02-Categoria.jpg))
+![Categoria](assets/H2-02-Categoria.jpg)
 
 ##### DESTINO  
-![Destino](assets/H2-03-Destino.jpg))
+![Destino](assets/H2-03-Destino.jpg)
 
 ##### CONTRATACAO 
-![Contratacao](assets/H2-04-Contratacao.jpg))
+![Contratacao](assets/H2-04-Contratacao.jpg)
 
 ##### ITEM_CONTRATACAO 
-![ItemContratacao](assets/H2-05-ItemContratacao.jpg))
+![ItemContratacao](assets/H2-05-ItemContratacao.jpg)
                                                     
                                                
         
