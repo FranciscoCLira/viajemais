@@ -11,5 +11,7 @@ public interface ContratacaoRepository extends JpaRepository<Contratacao, Long> 
 	@Query("SELECT c FROM Contratacao c LEFT JOIN FETCH c.itens i LEFT JOIN FETCH i.destino")
 	List<Contratacao> buscarComDestinos();
 
+	boolean existsByNomeCliente(String nomeCliente);
+	
     // para os filtros:  nada além de métodos padrão
 }

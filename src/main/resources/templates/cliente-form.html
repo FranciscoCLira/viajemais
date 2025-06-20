@@ -11,23 +11,38 @@
         <h1 th:text="${editar} ? 'Editar Cliente' : 'Novo Cliente'">Novo Cliente</h1>
 
         
+        <div th:if="${erroSemAlteracao}" class="mensagem-exclusao"
+             th:text="${erroSemAlteracao}"></div>    
+        
         <!-- sucesso -->
         <div th:if="${sucessoCadastro}" class="mensagem-criacao"
              th:text="${sucessoCadastro}"></div>
+             
+        <!-- sucesso da edição -->
+        <div th:if="${sucessoEdicao}" class="mensagem-criacao"
+             th:text="${sucessoEdicao}"></div>
 
         <!-- erro de duplicação -->
         <div th:if="${erroDuplicado}" class="mensagem-exclusao"
              th:text="${erroDuplicado}"></div>
 
-        <!-- outros erros não previstos -->
+        <!-- falha no cancelamento -->
+        <div th:if="${erroCancelamento}" class="mensagem-exclusao"
+             th:text="${erroCancelamento}"></div>
+
+        <!-- outro erro qualquer não previsto -->
         <div th:if="${erroNaoPrevisto}" class="mensagem-exclusao"
-             th:text="${erroNaoPrevisto}"></div>        
-        
+             th:text="${erroNaoPrevisto}"></div>             
+           
              
         <!-- Formulário -->
         <form th:action="@{/clientes/salvar}" th:object="${cliente}" method="post">
             <!-- Indica se é edição ou criação -->
-            <input type="hidden" name="editar" th:value="${editar}" />
+            <input type="hidden" th:if="${editar}" th:field="*{id}" />
+            
+            <!-- somente em edição, para manter o codCliente -->
+            <!-- <input type="hidden" th:if="${editar}" th:field="*{codCliente}" />  -->
+
 
             <div class="form-group">
                 <label for="nomeCliente">Nome do Cliente:</label>
@@ -35,7 +50,6 @@
                     type="text"
                     id="nomeCliente"
                     th:field="*{nomeCliente}"
-                    th:readonly="${editar}"
                     required>
                 <!-- Feedback de erro se ultrapassar 50 chars ou não obedecer o Pattern -->
                 <div th:if="${#fields.hasErrors('nomeCliente')}"
@@ -69,14 +83,16 @@
                         gap: 1rem;
                         margin-top: 2rem;">
                 <button type="submit" class="confirmar"
-                        th:text="${editar} ? 'Atualizar' : 'Salvar'">
+                		th:text="${editar} ? 'Salvar' : 'Criar'">
                     Salvar
                 </button>
+                    
                 <button type="button"
                         class="cancelar"
                         th:onclick="|window.location.href='@{/clientes}'|">
                     Clientes Cadastrados
                 </button>
+                    
                 <button type="button"
                         class="botao-voltar"
                         th:onclick="|window.location.href='@{/' }|">

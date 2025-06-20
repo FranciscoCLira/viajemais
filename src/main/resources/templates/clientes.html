@@ -97,14 +97,20 @@
                     </td>
 
                     <td class="acoes-cell">
-			  	        <!-- Exclui só quem estiver cancelado -->
-				        <button type="button"
-				          class="cancelar"
-				          th:id="${'btnDelete-' + cliente.id}"
-				          th:style="${cliente.situacaoCliente == 'C'} ? '' : 'display:none;'"
-				          th:onclick="|if(confirm('Tem certeza que deseja excluir este cliente?')) window.location.href='@{/clientes/excluir/{id}(id=${cliente.id})}'|">
-				        Excluir
-				        </button>
+			  	        <!-- só mostra Editar se podeEditarMap for true -->
+			  	        <a th:if="${podeEditarMap[cliente.id]}"
+			  	           th:href="@{/clientes/editar/{id}(id=${cliente.id})}"
+			  	           class="confirmar">
+			  	           Editar
+			  	        </a>			  	        
+				  	       
+			  	        <!-- só mostra Excluir se podeExcluirMap for true -->
+  		  	            <a th:if="${podeExcluirMap[cliente.id]}"
+ 			               th:href="@{/clientes/excluir/{id}(id=${cliente.id})}"
+			               class="cancelar"
+				           onclick="return confirm('Confirma exclusão?');">
+				           Excluir
+				  	    </a>			  	        
 	  			    </td>
                  </tr>
             </tbody>

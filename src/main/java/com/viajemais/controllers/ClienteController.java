@@ -1,8 +1,9 @@
 package com.viajemais.controllers;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,12 +35,27 @@ public class ClienteController {
     
      // 1) LISTAR TODOS OS CLIENTES
     @GetMapping
-    public String listarClientes(Model model) {
-        List<Cliente> lista = clienteService.listarTodos();
-        model.addAttribute("listaDeClientes", lista);
-        return "clientes"; // renderiza: src/main/resources/templates/clientes.html
-    }
+    public String listar(Model model) {
+        List<Cliente> clientes = clienteService.listarTodos();
 
+        Map<Long,Boolean> podeEditar  = new HashMap<>();
+        Map<Long,Boolean> podeExcluir = new HashMap<>();
+
+        for (Cliente c : clientes) {
+            boolean temViagens = clienteService.clientePossuiContratacoes(c.getNomeCliente());
+            // Editar só se NÃO tiver viagens
+            podeEditar.put(c.getId(), !temViagens);
+            // Excluir só se situação = 'C' e sem viagens
+            podeExcluir.put(c.getId(),
+                "C".equals(c.getSituacaoCliente()) && !temViagens);
+        }
+
+        model.addAttribute("listaDeClientes",  clientes);
+        model.addAttribute("podeEditarMap", podeEditar);
+        model.addAttribute("podeExcluirMap",podeExcluir);
+        return "clientes";
+    }
+    
     // 2) FORMULÁRIO “NOVO CLIENTE”
     @GetMapping("/novo")
     public String novoCliente(Model model) {
@@ -48,86 +64,152 @@ public class ClienteController {
         return "cliente-form"; // renderiza: src/main/resources/templates/cliente-form.html
     }
 
+    
     // 3) FORMULÁRIO “EDITAR CLIENTE” (edição completa)
+    
+    // 1) Form de edição (reaproveitando o mesmo template cliente-form.html)
     @GetMapping("/editar/{id}")
     public String editarCliente(@PathVariable Long id, Model model) {
-        Cliente cliente = clienteService.buscarPorId(id)
+        Cliente c = clienteService.buscarPorId(id)
             .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + id));
-        model.addAttribute("cliente", cliente);
+        model.addAttribute("cliente", c);
         model.addAttribute("editar", true);
         return "cliente-form";
     }
 
+    // 2) Salvar edição
+    @PostMapping("/editar")
+    public String salvarEdicao(
+        @Valid @ModelAttribute("cliente") Cliente cliente,
+        BindingResult binding,
+        RedirectAttributes ra,
+        Model model) {
+
+      // 2.1) Bean-Validation de campos (ex: @NotBlank)
+      if (binding.hasErrors()) {
+        model.addAttribute("editar", true);
+        return "cliente-form";
+      }
+
+      // 2.2) Regra de cancelamento: só se não houver contratações
+      if ("C".equals(cliente.getSituacaoCliente())
+          && clienteService.clientePossuiContratacoes(cliente.getNomeCliente())) {
+        model.addAttribute("erroCancelamento",
+            "Erro: Cliente não cancelado pois possui contratações de viagens.");
+        model.addAttribute("editar", true);
+        return "cliente-form";
+      }
+
+      try {
+        clienteService.salvar(cliente);
+        // 2.3) flash-message de sucesso
+        ra.addFlashAttribute("sucessoEdicao",
+            String.format("Cliente alterado com sucesso: #%d – %s",
+                          cliente.getCodCliente(),
+                          cliente.getNomeCliente()));
+        return "redirect:/clientes";
+      } catch (DataIntegrityViolationException ex) {
+        // nome duplicado?
+        model.addAttribute("erroDuplicado",
+            String.format("Erro. Cliente já cadastrado: #%d – %s",
+                          cliente.getCodCliente(),
+                          cliente.getNomeCliente()));
+        model.addAttribute("editar", true);
+        return "cliente-form";
+      } catch (Exception ex) {
+        model.addAttribute("erroNaoPrevisto", "Erro não previsto pelo sistema.");
+        model.addAttribute("editar", true);
+        return "cliente-form";
+      }
+    }
+  
+    
+    
     // 4) SALVAR (criação ou edição completa via cliente-form.html)
     @PostMapping("/salvar")
-    public String salvarCliente(
-            @Valid @ModelAttribute("cliente") Cliente cliente,
-            // @RequestParam(value = "editar", defaultValue = "false") boolean editar,
-            BindingResult binding,
-            RedirectAttributes ra,            
-            Model model) {
+    public String salvar(
+        @Valid @ModelAttribute("cliente") Cliente clienteForm,
+        BindingResult binding,
+        RedirectAttributes ra,
+        Model model) {
 
-        // Se houver erro de validação (nome, tamanho, pattern etc.), volta ao formulário
-    	// 1) validações de Bean Validation (@NotBlank, etc.)
+    	System.out.println("***********************************************");  
+	    System.out.printf("*** ClienteController: clienteForm.getId()=%d, " + 
+	              "clienteForm.getNomeCliente()=%s, " + 
+	              "clienteForm.getSituacaoCliente()=%s%n",
+	               clienteForm.getId(),
+	               clienteForm.getNomeCliente(),
+	               clienteForm.getSituacaoCliente());   
+    	System.out.println("***********************************************");  
+	    
+	    // 1) Detecta edição por ID
+        boolean isEdicao = clienteForm.getId() != null;
+ 
+        // Sempre reponha essa flag pra view saber se é edição
+        model.addAttribute("editar", isEdicao);
+         
+        // 2) Bean validations (NotBlank, etc)
         if (binding.hasErrors()) {
-            // model.addAttribute("editar", editar);
-            // volta ao formulário mostrando erros de campo
-            return "cliente-form";
+          return "cliente-form";
         }
-        
-        boolean novo = (cliente.getId() == null);
+      
+      
+      // 3) Detecta “nenhuma alteração” em edição
+      if (isEdicao) {
+        Cliente original = clienteService.buscarPorId(clienteForm.getId())
+                           .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+        boolean mudouNome  = !original.getNomeCliente().equals(clienteForm.getNomeCliente());
+        boolean mudouSituacao = !original.getSituacaoCliente().equals(clienteForm.getSituacaoCliente());
 
-        try {
-            if (novo) {
-                cliente.setDataCadastro(LocalDate.now());
-            }
-            Cliente salvo = clienteService.salvar(cliente);
+        if (!mudouNome && !mudouSituacao) {
+          model.addAttribute("erroSemAlteracao", "Entre com as alterações para Salvar");
+          return "cliente-form";
+        }
+      }
 
-            // 2) mensagem de sucesso em flash
-            ra.addFlashAttribute("sucessoCadastro",
-                String.format("Cliente cadastrado com sucesso: #%d – %s",
-                              salvo.getCodCliente(),
-                              salvo.getNomeCliente()));
-            return "redirect:/clientes/novo";
+      // 4) Validação de duplicidade ANTES do save
+      if (isEdicao) {
+        // edição: não pode existir outro com mesmo nome
+        if (clienteService.existsByNomeClienteAndIdNot(
+                clienteForm.getNomeCliente(), clienteForm.getId())) {
+          model.addAttribute("erroDuplicado", "Já existe um cliente com este nome");
+          return "cliente-form";
+        }
+      } else {
+        // criação: não pode existir nenhum com esse nome
+        if (clienteService.existsByNomeCliente(clienteForm.getNomeCliente())) {
+          model.addAttribute("erroDuplicado", "Já existe um cliente com este nome");
+          return "cliente-form";
+        }
+      }
 
-        } catch (DataIntegrityViolationException ex) {
-            // 3) cliente duplicado?
-            Optional<Cliente> existente = clienteService.buscarPorNome(cliente.getNomeCliente());
-            if (existente.isPresent()) {
-                Cliente c = existente.get();
-                model.addAttribute("erroDuplicado",
-                    String.format("Erro. Cliente já cadastrado: #%d – %s",
-                                  c.getCodCliente(),
-                                  c.getNomeCliente()));
-            } else {
-                // 4) qualquer outro DataIntegrity
-                model.addAttribute("erroNaoPrevisto",
-                    "Erro não previsto pelo sistema.");
-            }
-            // Reexibe o form com a mensagem de erro
-            return "cliente-form";
-        } catch (Exception ex) {
-            model.addAttribute("erroNaoPrevisto",
-                "Erro não previsto pelo sistema.");
-            return "cliente-form";
-        }       
-        
-//      logica antes de implementar as mensagens acima 
-//        try {
-//            // O próprio ClienteService cuida de: 
-//            // • auto-increment de codCliente (se id == null)  
-//            // • colocar dataCadastro (dentro de salvar(...) quando id == null)  
-//            // • verificação de unicidade de nome (lança DataIntegrityViolationException)
-//            clienteService.salvar(cliente);
-//        } catch (DataIntegrityViolationException e) {
-//            model.addAttribute("erroNome", e.getMessage());
-//            model.addAttribute("editar", editar);
-//            return "cliente-form";
-//        }
-//
-//        return "redirect:/clientes";
+      if (isEdicao) {
+    	  Cliente original = clienteService.buscarPorId(clienteForm.getId()).orElseThrow();
+    	  // garante que o form carregue o código já existente
+    	  clienteForm.setCodCliente(original.getCodCliente());
+    	  // (se quiser manter dataCadastro, 
+    	  // também pode “clienteForm.setDataCadastro(original.getDataCadastro());”)
+    	  clienteForm.setDataCadastro(LocalDate.now());
+    	}      
+      
+      // 5) se passou, salva 
+      Cliente salvo = clienteService.salvar(clienteForm);
+
+      // 6) flash + redirect
+      if (isEdicao) {
+        ra.addFlashAttribute("sucessoEdicao",
+          String.format("Cliente alterado com sucesso: #%d – %s",
+                        salvo.getCodCliente(), salvo.getNomeCliente()));
+        return "redirect:/clientes/editar/" + salvo.getId();
+      } else {
+        ra.addFlashAttribute("sucessoCadastro",
+          String.format("Cliente cadastrado com sucesso: #%d – %s",
+                        salvo.getCodCliente(), salvo.getNomeCliente()));
+        return "redirect:/clientes/novo";
+      }
     }
 
+    
     // 5) EXCLUIR CLIENTE (só se não estiver ativo — condicional na view)
     @GetMapping("/excluir/{id}")
     public String excluirCliente(@PathVariable Long id) {
