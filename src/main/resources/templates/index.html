@@ -28,6 +28,11 @@
         <a th:href="@{/destinos}" class="botao-destinos">Destinos</a>
     </div>
 
+    <!-- mensagem-erro -->
+    <div th:if="${erroSelecao}" class="mensagem-erro"
+         style="display: flex; justify-content: center; margin-bottom: 1rem;"
+         th:text="${erroSelecao}">
+    </div>    
 
     <form th:action="@{/}" method="get"
 	    style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
@@ -71,10 +76,10 @@
 		           placeholder="ex: 5 000"
 		           class="campo-quantidade" />
 		</div>
-		
+
 		<div style="align-self:flex-end; display:flex; gap:0.5rem;">
-		  <button type="submit" class="confirmar">Filtrar</button>
-		  <a th:href="@{ / }" class="cancelar">Limpar</a>
+		<button type="submit" class="confirmar">Filtrar</button>
+		<a th:href="@{ / }" class="cancelar">Limpar</a>
 		</div>
 	</form>
     
@@ -162,6 +167,11 @@
 /*]]>*/
 </script>
 
-
 </body>
+
+<footer>
+	<p style="text-align: center; margin-top: 2rem; color: #2980b9; font-weight: bold">
+	    &copy; 2023 Viaje Mais. Todos os direitos reservados.
+	</p>    
+</footer>   
 </html>

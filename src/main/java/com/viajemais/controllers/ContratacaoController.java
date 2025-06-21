@@ -54,11 +54,18 @@ public class ContratacaoController {
 
     /** Recebe os IDs de destinos selecionados e exibe o formulário */
     @PostMapping("/selecionar")
-    public String selecionarDestinos(@RequestParam(required = false) List<Long> destinosSelecionados,
-                                     Model model) {
+    public String selecionarDestinos(
+    		@RequestParam(required = false) List<Long> destinosSelecionados,
+            Model model,
+            RedirectAttributes ra) {
+    	
         if (destinosSelecionados == null || destinosSelecionados.isEmpty()) {
+            // prepara flash-attribute para exibir o erro na Home
+            ra.addFlashAttribute("erroSelecao", "Selecione ao menos um destino");
             return "redirect:/";
         }
+        
+        // caso haja seleção, segue normalmente
         List<Destino> destinos = destinoService.buscarPorIds(destinosSelecionados);
         model.addAttribute("destinosSelecionados", destinos);
         return "contratacao-form";
