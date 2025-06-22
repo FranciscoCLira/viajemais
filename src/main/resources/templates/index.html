@@ -20,13 +20,21 @@
         <h1>Viaje Mais - Seu sonho começa aqui</h1>
     </div>
     
-    <!-- Menu horizontal centralizado -->
-    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.2rem;">
-        <a th:href="@{/clientes/novo}" class="botao-cadastro">Cadastrar Cliente</a>
-        <a href="#" class="confirmar" onclick="return contratarSelecionados()">Contratar Selecionados</a>
-        <a th:href="@{/contratacao/historico}" class="botao-historico">Histórico de Contratações</a>
-        <a th:href="@{/destinos}" class="botao-destinos">Destinos</a>
-    </div>
+	<!-- Menu horizontal centralizado -->
+	<div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+	  <!-- 1) Contratar Selecionados -->
+	  <a href="#" class="confirmar" onclick="return contratarSelecionados()">Contratar Selecionados</a>
+	
+	  <!-- 2) Histórico de Contratações -->
+	  <a href="/contratacao/historico" class="botao-historico">Contratações</a>
+	
+	  <!-- 3) Destinos -->
+	  <a href="/destinos" class="botao-destinos">Destinos</a>
+	
+	  <!-- 4) Clientes -->
+	  <a href="/clientes" class="botao-cadastro">Clientes</a>
+	</div>
+
 
     <!-- mensagem-erro -->
     <div th:if="${erroSelecao}" class="mensagem-erro"
@@ -90,17 +98,17 @@
             <label>
                 <input type="checkbox" name="destinosSelecionados"
                        th:value="${destino.id}">
-                <strong th:text="${destino.local}">Praia</strong>
-                – 
+                <strong th:text="${destino.local}">Destino</strong>
+                &nbsp;&nbsp;&nbsp;&nbsp;  – 
                 Preço: R$ 
                 <span class="ptbr" th:attr="data-value=${destino.preco}"></span>
-                <small> por diária</small>
-            </label>
-            <p>
+                <small>  por diária&nbsp;&nbsp;&nbsp;&nbsp;</small>
                 <strong>Categoria:</strong>
                 <span th:text="${destino.categoria.nome}">Categoria</span>
-            </p>
+            </label>
+           <div> 	
             <img th:src="${destino.imagemUrl}" alt="Imagem do destino">
+           </div> 	
         </div>
        
         <div style="text-align: center; margin-top: 1rem;">
