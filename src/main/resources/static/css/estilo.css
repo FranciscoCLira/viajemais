@@ -240,6 +240,10 @@ label {
   margin-bottom: 1.5rem;
 }
 
+.filtro-clientes .campo-nome {
+  width: 520px;
+}
+
 .filtro-linha {
   display: flex;
   align-items: center;
@@ -259,6 +263,14 @@ label {
   width: 140px;
 }
 
+.filtro-linha .campo-codcliente {
+  width: 140px;
+}
+
+.filtro-linha .campo-situacao {
+  width: 140px;
+}
+
 .filtro-linha .entre {
   margin: 0 0.25rem;
 }
@@ -272,6 +284,7 @@ label {
 /* contratação bem-sucedida = verde */
 /* criação bem-sucedida = verde */
 /* edição bem-sucedida = verde */
+.mensagem-sucesso,
 .mensagem-criacao,
 .mensagem-alteracao {
   color: #28a745;
@@ -294,3 +307,19 @@ label {
   /* para garantir que fique na mesma linha: */
   margin-bottom: 1rem;
 }
+
+.filtro-clientes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.filtro-clientes input,
+.filtro-clientes select {
+  padding: 0.4rem;
+  font-size: 0.9rem;
+}
+
+

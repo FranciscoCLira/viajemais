@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.viajemais.entities.Cliente;
 import com.viajemais.services.ClienteService;
@@ -33,10 +35,122 @@ public class ClienteController {
         this.clienteService = clienteService;
     }
     
-     // 1) LISTAR TODOS OS CLIENTES
+     // 1) LISTAR OS CLIENTES POR FILTRO INFORMADO 
     @GetMapping
-    public String listar(Model model) {
-        List<Cliente> clientes = clienteService.listarTodos();
+    public String listar(
+	    @RequestParam(required = false) String nomeFiltro,
+	    @RequestParam(required = false) Integer codInicio,
+	    @RequestParam(required = false) Integer codFim,
+	    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+	    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
+	    @RequestParam(required = false) String situacaoFiltro,
+	    @RequestParam(required = false, defaultValue = "false") boolean limpar,
+    	Model model) {
+    	
+    	// List<Cliente> clientes;
+        // String mensagem;
+
+    	
+        // Se for “Limpar”, renderiza tela vazia
+        if (limpar) {
+          model.addAttribute("clientes", List.of());
+          // zera todos os campos de filtro
+          model.addAttribute("nomeFiltro",     null);
+          model.addAttribute("codInicio",      null);
+          model.addAttribute("codFim",         null);
+          model.addAttribute("dataInicio",     null);
+          model.addAttribute("dataFim",        null);
+          model.addAttribute("situacaoFiltro", null);
+          return "clientes";
+        }    	
+
+        boolean hasNome  = nomeFiltro  != null && !nomeFiltro.isBlank();
+        boolean hasCod   = codInicio   != null || codFim   != null;
+        boolean hasDate  = dataInicio  != null || dataFim  != null;
+        boolean hasSit   = situacaoFiltro != null && !situacaoFiltro.isBlank();
+        
+        List<Cliente> clientes; 
+        
+        
+        // 1) Se usar Nome ou Código de cliente, deve ser o ÚNICO filtro
+        if ((hasNome && (hasCod || hasDate || hasSit))
+         || (hasCod  && (hasNome|| hasDate || hasSit))) {
+          model.addAttribute("erroFiltro", "Informe apenas um filtro por vez (exceto Data+Situação).");
+          clientes = List.of();
+        }
+        // 2) Se usar Data+Situação JUNTOS
+        else if (hasDate && hasSit) {
+          // valida intervalo de datas
+          LocalDate di = dataInicio != null ? dataInicio : dataFim;
+          LocalDate df = dataFim    != null ? dataFim    : dataInicio;
+          if (df.isBefore(di)) {
+            model.addAttribute("erroFiltro", "Intervalo de datas inválido");
+            clientes = List.of();
+          } else {
+            clientes = clienteService.filtrarPorDataESituacao(di, df, situacaoFiltro);
+            model.addAttribute("mensagemSucesso",
+              clientes.isEmpty()
+                ? "Não há clientes para a consulta informada"
+                : "Consulta efetuada com sucesso"
+            );
+          }
+        }
+        // 3) Se usar só Data
+        else if (hasDate) {
+          LocalDate di = dataInicio != null ? dataInicio : dataFim;
+          LocalDate df = dataFim    != null ? dataFim    : dataInicio;
+          if (df.isBefore(di)) {
+            model.addAttribute("erroFiltro", "Intervalo de datas inválido");
+            clientes = List.of();
+          } else {
+            clientes = clienteService.filtrarPorData(di, df);
+            model.addAttribute("mensagemSucesso",
+              clientes.isEmpty()
+                ? "Não há clientes para a consulta informada"
+                : "Consulta efetuada com sucesso"
+            );
+          }
+        }
+        // 4) Se usar só Situação
+        else if (hasSit) {
+          clientes = clienteService.filtrarPorSituacao(situacaoFiltro);
+          model.addAttribute("mensagemSucesso",
+            clientes.isEmpty()
+              ? "Não há clientes para a consulta informada"
+              : "Consulta efetuada com sucesso"
+          );
+        }
+        // 5) Se usar só Nome
+        else if (hasNome) {
+          clientes = clienteService.filtrarPorNome(nomeFiltro);
+          model.addAttribute("mensagemSucesso",
+            clientes.isEmpty()
+              ? "Não há clientes para a consulta informada"
+              : "Consulta efetuada com sucesso"
+          );
+        }
+        // 6) Se usar só Código
+        else if (hasCod) {
+          Integer i = codInicio != null ? codInicio : codFim;
+          Integer f = codFim    != null ? codFim    : codInicio;
+          if (f < i) {
+            model.addAttribute("erroFiltro", "Intervalo de código inválido");
+            clientes = List.of();
+          } else {
+            clientes = clienteService.filtrarPorCodigo(i, f);
+            model.addAttribute("mensagemSucesso",
+              clientes.isEmpty()
+                ? "Não há clientes para a consulta informada"
+                : "Consulta efetuada com sucesso"
+            );
+          }
+        }
+        // 7) Sem filtro
+        else {
+          clientes = clienteService.listarTodosOrdenados();
+          model.addAttribute("mensagemSucesso", "Consulta efetuada com sucesso de todos os clientes.");
+        }
+        
 
         Map<Long,Boolean> podeEditar  = new HashMap<>();
         Map<Long,Boolean> podeExcluir = new HashMap<>();
@@ -50,11 +164,23 @@ public class ClienteController {
                 "C".equals(c.getSituacaoCliente()) && !temViagens);
         }
 
+        
+        // repõe dados no formulário
         model.addAttribute("listaDeClientes",  clientes);
         model.addAttribute("podeEditarMap", podeEditar);
         model.addAttribute("podeExcluirMap",podeExcluir);
+        
+        // também manter os valores de filtro para repor no form:
+        model.addAttribute("nomeFiltro",      nomeFiltro);
+        model.addAttribute("codInicio",       codInicio);
+        model.addAttribute("codFim",          codFim);
+        model.addAttribute("dataInicio",      dataInicio);
+        model.addAttribute("dataFim",         dataFim);
+        model.addAttribute("situacaoFiltro",  situacaoFiltro);        
+        
         return "clientes";
     }
+    
     
     // 2) FORMULÁRIO “NOVO CLIENTE”
     @GetMapping("/novo")
@@ -245,4 +371,38 @@ public class ClienteController {
                              .map(Cliente::getNomeCliente)
                              .collect(Collectors.toList());
     }
+    
+    
+    @PostMapping("/alterarSituacao")
+    public String alterarSituacao(
+            @RequestParam Long id,
+            @RequestParam String situacaoCliente,
+            @RequestParam(required=false) String nomeFiltro,
+            @RequestParam(required=false) Integer codInicio,
+            @RequestParam(required=false) Integer codFim,
+            @RequestParam(required=false)
+              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(required=false)
+              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
+            @RequestParam(required=false) String situacaoFiltro,
+            RedirectAttributes ra) {
+
+        // 1) Atualiza a situação do cliente
+        clienteService.alterarSituacao(id, situacaoCliente);
+        ra.addFlashAttribute("mensagemSucesso",
+          "Cliente #" + id + " agora com situação " + situacaoCliente);
+
+        // 2) Reconstrói a URL de redirecionamento incluindo os filtros que não eram nulos
+        UriComponentsBuilder uri = UriComponentsBuilder.fromPath("/clientes");
+        if (nomeFiltro     != null) uri.queryParam("nomeFiltro", nomeFiltro);
+        if (codInicio      != null) uri.queryParam("codInicio", codInicio);
+        if (codFim         != null) uri.queryParam("codFim", codFim);
+        if (dataInicio     != null) uri.queryParam("dataInicio", dataInicio);
+        if (dataFim        != null) uri.queryParam("dataFim", dataFim);
+        if (situacaoFiltro != null) uri.queryParam("situacaoFiltro", situacaoFiltro);
+
+        return "redirect:" + uri.build().toUriString();
+    }
+    
+    
 }

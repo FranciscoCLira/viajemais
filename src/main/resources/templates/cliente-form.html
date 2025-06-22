@@ -76,6 +76,8 @@
 
             <!-- Data de Cadastro não aparece; já é gerada no backend -->
 
+		   <!-- Botões no rodapé -->
+		
             <div class="rodape-botoes"
                  style="display: flex;
                         justify-content: center;
@@ -87,11 +89,9 @@
                     Salvar
                 </button>
                     
-                <button type="button"
-                        class="cancelar"
-                        th:onclick="|window.location.href='@{/clientes}'|">
-                    Clientes Cadastrados
-                </button>
+				<a th:href="@{/clientes(limpar='true')}" class="botao-cadastro">
+				  Clientes Cadastrados
+				</a>
                     
                 <button type="button"
                         class="botao-voltar"

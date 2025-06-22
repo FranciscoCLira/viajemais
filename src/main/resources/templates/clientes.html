@@ -54,10 +54,64 @@
 		  </div>
 		</div>
 
+		<!-- FILTROS -->
+        
+		<form method="get" th:action="@{/clientes}" class="filtro-clientes">
+		
+		  <!-- filtro por nome -->
+		  <input type="text" name="nomeFiltro" class="campo-nome" 
+		         placeholder="Cliente" th:value="${nomeFiltro}" />
+		
+		  <!-- filtro por código -->
+		  <div class="filtro-linha">		  
+			  <input type="number" name="codInicio" class="campo-codcliente"
+			         placeholder="Cód.Cliente inicio"
+			         th:value="${codInicio}" min="1" />
+			  <span>a</span>       
+			  <input type="number" name="codFim"  class="campo-codcliente"  
+			         placeholder="Cód.Cliente fim"
+			         th:value="${codFim}"    min="1" />
+		      <span> &nbsp;&nbsp;&nbsp;&nbsp; </span>
+		        
+			  <!-- filtro por data -->
+			  <input type="date" name="dataInicio" class="campo-data"
+			         th:value="${dataInicio}" />
+			  <span>a</span>
+			  <input type="date" name="dataFim"
+			         th:value="${dataFim}" class="campo-data" />
+			  <span> &nbsp;&nbsp;&nbsp;&nbsp; </span>       
+		
+		  <!-- filtro por situação -->
+			  <select name="situacaoFiltro" class="campo-situacao">
+			    <option value="" th:selected="${situacaoFiltro == null}">
+			      -- todas situações --
+			    </option>
+			    <option value="A" th:selected="${situacaoFiltro == 'A'}">Ativo</option>
+			    <option value="I" th:selected="${situacaoFiltro == 'I'}">Inativo</option>
+			    <option value="P" th:selected="${situacaoFiltro == 'P'}">Pendente</option>
+			    <option value="C" th:selected="${situacaoFiltro == 'C'}">Cancelado</option>
+			  </select>
+		  </div>		  
+		
+		  <div>
+			  <button type="submit" class="confirmar">Filtrar</button>
+			  <a th:href="@{/clientes(limpar='true')}" class="cancelar">Limpar</a>
+		      <span> &nbsp;&nbsp;&nbsp;&nbsp; </span>
+			
+			  <!-- mensagens de erro ou sucesso -->
+			  <a th:if="${erroFiltro}"    class="mensagem-erro" 
+			       th:text="${erroFiltro}"></a>
+			  <a th:if="${mensagemSucesso}" class="mensagem-sucesso" 
+			       th:text="${mensagemSucesso}"></a>
+		  </div>			       
+		</form>
+
+
+
         <table>
             <thead>
                 <tr>
-                    <th>Cod. Cliente</th>
+                    <th>Cód. Cliente</th>
                     <th>Nome do Cliente</th>
                     <th>Data de Cadastro</th>
                     <th>Situação</th>
@@ -65,49 +119,55 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="cliente : ${listaDeClientes}">
+                <tr th:each="c : ${listaDeClientes}">
                     <!-- CodCliente -->
-                    <td th:text="${cliente.codCliente}">123</td>
+                    <td th:text="${c.codCliente}">123</td>
 
                     <!-- NomeCliente -->
-                    <td th:text="${cliente.nomeCliente}">Nome Exemplo</td>
+                    <td th:text="${c.nomeCliente}">Nome Exemplo</td>
 
                     <!-- Data de Cadastro -->
-                    <td th:text="${cliente.dataCadastro != null} ? ${#temporals.format(cliente.dataCadastro, 'dd/MM/yyyy')} : ''">
+                    <td th:text="${c.dataCadastro != null} ? ${#temporals.format(c.dataCadastro, 'dd/MM/yyyy')} : ''">
                         01/01/2025
                     </td>
 
                     <!-- Situação (select) -->
                     <td>
                         <!-- Form vazio para receber id e situação via atributo form -->
-                        <form th:id="${'frm-' + cliente.id}"
-                              th:action="@{/clientes/atualizar-situacao}"
-                              method="post">
-                            <input type="hidden" name="id" th:value="${cliente.id}">
-                        </form>
-                        <select name="situacaoCliente"
-                                th:attr="form=${'frm-' + cliente.id}, data-id=${cliente.id}"
-                                required
-                                class="situacao-select"
-                                onchange="this.form.submit()">
-                            <option value="A" th:selected="${cliente.situacaoCliente == 'A'}">Ativo</option>
-                            <option value="I" th:selected="${cliente.situacaoCliente == 'I'}">Inativo</option>
-                            <option value="P" th:selected="${cliente.situacaoCliente == 'P'}">Pendente</option>
-                            <option value="C" th:selected="${cliente.situacaoCliente == 'C'}">Cancelado</option>
-                        </select>
+					    <form th:action="@{/clientes/alterarSituacao}" method="post" style="display:inline;">
+					      <!-- identifica o cliente -->
+					      <input type="hidden" name="id" th:value="${c.id}" />
+					      <!-- nova situação escolhida -->
+					      <select name="situacaoCliente"
+					              onchange="this.form.submit()">
+					        <option value="A" th:selected="${c.situacaoCliente=='A'}">Ativo</option>
+					        <option value="I" th:selected="${c.situacaoCliente=='I'}">Inativo</option>
+					        <option value="P" th:selected="${c.situacaoCliente=='P'}">Pendente</option>
+					        <option value="C" th:selected="${c.situacaoCliente=='C'}">Cancelado</option>
+					      </select>
+					
+					      <!-- 🔑 aqui vem TODOS os seus filtros atuais -->
+					      <input type="hidden" name="nomeFiltro"     th:value="${nomeFiltro}" />
+					      <input type="hidden" name="codInicio"      th:value="${codInicio}" />
+					      <input type="hidden" name="codFim"         th:value="${codFim}" />
+					      <input type="hidden" name="dataInicio"     th:value="${dataInicio}" />
+					      <input type="hidden" name="dataFim"        th:value="${dataFim}" />
+					      <input type="hidden" name="situacaoFiltro" th:value="${situacaoFiltro}" />
+					    </form>
+
                     </td>
 
                     <td class="acoes-cell">
 			  	        <!-- só mostra Editar se podeEditarMap for true -->
-			  	        <a th:if="${podeEditarMap[cliente.id]}"
-			  	           th:href="@{/clientes/editar/{id}(id=${cliente.id})}"
+			  	        <a th:if="${podeEditarMap[c.id]}"
+			  	           th:href="@{/clientes/editar/{id}(id=${c.id})}"
 			  	           class="confirmar">
 			  	           Editar
 			  	        </a>			  	        
 				  	       
 			  	        <!-- só mostra Excluir se podeExcluirMap for true -->
-  		  	            <a th:if="${podeExcluirMap[cliente.id]}"
- 			               th:href="@{/clientes/excluir/{id}(id=${cliente.id})}"
+  		  	            <a th:if="${podeExcluirMap[c.id]}"
+ 			               th:href="@{/clientes/excluir/{id}(id=${c.id})}"
 			               class="cancelar"
 				           onclick="return confirm('Confirma exclusão?');">
 				           Excluir
