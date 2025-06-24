@@ -72,25 +72,28 @@
 
 ##### IDE - restart app localHost 
 ![IDE-STS4](assets/01A1-IDE-STS-4.png)
-
+  
 ##### Home e Selecinar Viagens 
 ![Home](assets/01B1-Home.jpg)
-
+  
 ##### Confirmação de Viagem 
 ![ConfirmacaoViagem](assets/01B2-ConfirmacaoViagem.jpg)
-
+  
+##### Histórico da Confirmação de Viagem 
+![ConfirmacaoViagemHistorico](assets/01B2-ConfirmacaoViagemHistorico.jpg)
+  
 ##### Histórico de Contratações  
 ![HistoricoContratacoes](assets/01B3-HistoricoContratacoes.jpg)
-
+  
 ##### Editar Contratação 
 ![EditarContratacao](assets/01B4-EditarContratacao.jpg)
-
+  
 ##### Excluir Contratação 
 ![ExcluirContratacao](assets/01B5-ExcluirContratacao.jpg)
-
+ 
 ##### Categorias
 ![Categorias](assets/01C1-Categorias.jpg)
-
+ 
 ##### Nova Categoria
 ![NovaCategoria](assets/01C2-NovaCategoria.jpg)
 
